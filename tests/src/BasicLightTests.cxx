@@ -304,4 +304,6 @@ TEST_F(BasicLightTests, TurnOnUpdateOffContinueUpdate) {
     EXPECT_EQ(basicLight.getState(), staircase::BasicLight::LightState::OFF);
 }
 
+// TODO: add specific use case tests
+
 } // namespace tests

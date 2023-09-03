@@ -1,10 +1,10 @@
-#include <algorithm>
-
 #include <staircase/BasicLight.hxx>
 
 #include <hal/BinaryValue.hxx>
 #include <hal/IBinaryValueWriter.hxx>
 #include <hal/Timing.hxx>
+
+#include <algorithm>
 
 using namespace staircase;
 

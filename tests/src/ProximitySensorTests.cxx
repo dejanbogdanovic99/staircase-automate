@@ -203,4 +203,6 @@ TEST_F(ProximitySensorTests, FarClosFarSuccessfullUpdate) {
     EXPECT_FALSE(proximitySensor.stateChanged());
 }
 
+// TODO: add specific use case tests
+
 } // namespace tests

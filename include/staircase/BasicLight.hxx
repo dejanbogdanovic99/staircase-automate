@@ -4,9 +4,11 @@
 #include <hal/IBinaryValueWriter.hxx>
 #include <hal/Timing.hxx>
 
+#include <staircase/IBasicLight.hxx>
+
 namespace staircase {
 
-class BasicLight final {
+class BasicLight final : public IBasicLight {
   public:
     enum class LightState { ON, OFF };
 
@@ -15,16 +17,16 @@ class BasicLight final {
                hal::Milliseconds millis = hal::kForever) noexcept;
 
     BasicLight(const BasicLight &) = delete;
-    BasicLight(BasicLight &&) noexcept = default;
+    BasicLight(BasicLight &&) noexcept = delete;
     BasicLight &operator=(const BasicLight &) = delete;
-    BasicLight &operator=(BasicLight &&) noexcept = default;
+    BasicLight &operator=(BasicLight &&) noexcept = delete;
 
     ~BasicLight() = default;
 
-    void turnOn(hal::Milliseconds millis = hal::kForever) noexcept;
-    void turnOff(hal::Milliseconds millis = hal::kForever) noexcept;
+    void turnOn(hal::Milliseconds millis = hal::kForever) noexcept final;
+    void turnOff(hal::Milliseconds millis = hal::kForever) noexcept final;
 
-    void update(hal::Milliseconds delta) noexcept;
+    void update(hal::Milliseconds delta) noexcept final;
 
     LightState getState() const noexcept;
 

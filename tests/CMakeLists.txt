@@ -4,6 +4,7 @@ set(TESTS all-tests)
 
 add_executable(${STAIRCASE_TEST_BINARY}
     src/BasicLightTests.cxx
+    src/MovingTests.cxx
     src/ProximitySensorTests.cxx
 )
 

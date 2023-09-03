@@ -4,9 +4,11 @@
 #include <hal/IBinaryValueReader.hxx>
 #include <hal/Timing.hxx>
 
+#include <staircase/IProximitySensor.hxx>
+
 namespace staircase {
 
-class ProximitySensor final {
+class ProximitySensor final : public IProximitySensor {
   public:
     enum class SensorState { CLOSE, FAR };
     static constexpr hal::Milliseconds kDebouncePeriod = 300;
@@ -14,17 +16,17 @@ class ProximitySensor final {
     ProximitySensor(hal::IBinaryValueReader &binaryValueReader) noexcept;
 
     ProximitySensor(const ProximitySensor &) = delete;
-    ProximitySensor(ProximitySensor &&) noexcept = default;
+    ProximitySensor(ProximitySensor &&) noexcept = delete;
     ProximitySensor &operator=(const ProximitySensor &) = delete;
-    ProximitySensor &operator=(ProximitySensor &&) noexcept = default;
+    ProximitySensor &operator=(ProximitySensor &&) noexcept = delete;
 
     ~ProximitySensor() = default;
 
-    bool stateChanged() const noexcept;
-    bool isClose() const noexcept;
-    bool isFar() const noexcept;
+    bool stateChanged() const noexcept final;
+    bool isClose() const noexcept final;
+    bool isFar() const noexcept final;
 
-    void update(hal::Milliseconds delta) noexcept;
+    void update(hal::Milliseconds delta) noexcept final;
 
   private:
     SensorState readState() noexcept;
