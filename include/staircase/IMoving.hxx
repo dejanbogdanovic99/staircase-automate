@@ -6,6 +6,8 @@ namespace staircase {
 
 class IMoving {
   public:
+    enum class Direction { UP, DOWN };
+
     virtual void update(hal::Milliseconds delta) noexcept = 0;
     virtual hal::Milliseconds getTimePassed() const noexcept = 0;
     virtual bool isCompleted() const noexcept = 0;

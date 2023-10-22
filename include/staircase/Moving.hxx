@@ -7,18 +7,13 @@
 
 #include <cstdint>
 #include <functional>
-#include <span>
 
 namespace staircase {
 
 class Moving final : public IMoving {
   public:
-    static constexpr std::size_t kLightNum = 8;
-    using Lights = std::span<IBasicLight *, kLightNum>;
-
-    enum class Direction { UP, DOWN };
-
-    Moving(Lights lights, Direction direction, hal::Milliseconds duration) noexcept;
+    Moving(IBasicLight::BasicLights lights, Direction direction,
+           hal::Milliseconds duration) noexcept;
 
     Moving(const Moving &) = delete;
     Moving(Moving &&) noexcept = default;
@@ -40,10 +35,10 @@ class Moving final : public IMoving {
     static constexpr std::size_t kFastRiseCount = 3;
     hal::Milliseconds calculateInterval() const noexcept;
 
-    using LightIterator = Lights::iterator;
+    using BasicLightIterator = IBasicLight::BasicLights::iterator;
 
-    Lights mLights;
-    LightIterator mCurrentLight;
+    IBasicLight::BasicLights mLights;
+    BasicLightIterator mCurrentLight;
     std::size_t mCurrentIndex;
     bool mCompleted;
     Direction mDirection;
@@ -53,4 +48,4 @@ class Moving final : public IMoving {
     hal::Milliseconds mTimePassed;
 };
 
-} // namespace staircase`
+} // namespace staircase

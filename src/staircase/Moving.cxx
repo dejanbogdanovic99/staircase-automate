@@ -1,6 +1,7 @@
 #include <staircase/Moving.hxx>
 
 #include <hal/Timing.hxx>
+#include <staircase/IBasicLight.hxx>
 
 #include <algorithm>
 #include <cstdint>
@@ -9,12 +10,12 @@
 
 using namespace staircase;
 
-Moving::Moving(Lights lights, Direction direction,
+Moving::Moving(IBasicLight::BasicLights lights, Direction direction,
                hal::Milliseconds duration) noexcept
     : mLights{std::move(lights)}, mCurrentLight{std::begin(mLights)},
       mCurrentIndex{0}, mCompleted{false}, mDirection{direction},
       mDuration{duration}, mStandardOnDuration{static_cast<hal::Milliseconds>(
-                               mDuration / (kLightNum + 1))},
+                               mDuration / (IBasicLight::kLightNum + 1))},
       mTimeLeftUntillUpdate{calculateInterval()}, mTimePassed{0} {
     (*mCurrentLight)->turnOn(mTimeLeftUntillUpdate);
 }
