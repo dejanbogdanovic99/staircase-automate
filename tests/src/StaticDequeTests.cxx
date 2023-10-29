@@ -1,10 +1,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <mocks/BasicLightMock.hxx>
-
-#include <staircase/IBasicLight.hxx>
-#include <staircase/Moving.hxx>
 #include <util/StaticDequeue.hxx>
 
 #include <algorithm>
@@ -316,52 +312,6 @@ TEST(StaticDequeTests, IntIterators) {
     std::deque<int> stdDeque{6, 7, 8};
 
     EXPECT_TRUE(std::equal(deque.begin(), deque.end(), std::begin(stdDeque)));
-}
-
-TEST(StaticDequeTests, Moving) {
-    util::StaticDequeue<staircase::Moving, 7> deque;
-
-    std::array<NiceMock<mocks::BasicLightMock>,
-               staircase::IBasicLight::kLightNum>
-        lights;
-    std::array<staircase::IBasicLight *, staircase::IBasicLight::kLightNum>
-        lightPointers;
-
-    std::transform(std::begin(lights), std::end(lights),
-                   std::begin(lightPointers),
-                   [](auto &basicLight) { return &basicLight; });
-
-    InSequence s;
-
-    deque.pushBack(staircase::Moving{
-        staircase::IBasicLight::BasicLights{std::begin(lightPointers),
-                                            std::end(lightPointers)},
-        staircase::Moving::Direction::DOWN, 12000});
-
-    EXPECT_FALSE(deque.empty());
-    EXPECT_FALSE(deque.full());
-    EXPECT_EQ(deque.size(), 1);
-
-    deque.pushBack(staircase::Moving{
-        staircase::IBasicLight::BasicLights{std::begin(lightPointers),
-                                            std::end(lightPointers)},
-        staircase::Moving::Direction::DOWN, 11000});
-
-    EXPECT_FALSE(deque.empty());
-    EXPECT_FALSE(deque.full());
-    EXPECT_EQ(deque.size(), 2);
-
-    deque.popFront();
-
-    EXPECT_FALSE(deque.empty());
-    EXPECT_FALSE(deque.full());
-    EXPECT_EQ(deque.size(), 1);
-
-    deque.popFront();
-
-    EXPECT_TRUE(deque.empty());
-    EXPECT_FALSE(deque.full());
-    EXPECT_EQ(deque.size(), 0);
 }
 
 } // namespace tests

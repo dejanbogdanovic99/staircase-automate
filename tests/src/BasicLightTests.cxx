@@ -5,6 +5,7 @@
 
 #include <hal/BinaryValue.hxx>
 #include <hal/Timing.hxx>
+
 #include <staircase/BasicLight.hxx>
 
 namespace tests {

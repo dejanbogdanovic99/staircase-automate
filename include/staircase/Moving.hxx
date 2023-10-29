@@ -6,13 +6,12 @@
 #include <staircase/IMoving.hxx>
 
 #include <cstdint>
-#include <functional>
 
 namespace staircase {
 
 class Moving final : public IMoving {
   public:
-    Moving(IBasicLight::BasicLights lights, Direction direction,
+    Moving(BasicLights lights, Direction direction,
            hal::Milliseconds duration) noexcept;
 
     Moving(const Moving &) = delete;
@@ -27,6 +26,7 @@ class Moving final : public IMoving {
     bool isCompleted() const noexcept final;
     bool isNearEnd() const noexcept final;
     bool isNearBegin() const noexcept final;
+    bool isTooOld() const noexcept final;
     void complete() noexcept final;
 
   private:
@@ -35,9 +35,9 @@ class Moving final : public IMoving {
     static constexpr std::size_t kFastRiseCount = 3;
     hal::Milliseconds calculateInterval() const noexcept;
 
-    using BasicLightIterator = IBasicLight::BasicLights::iterator;
+    using BasicLightIterator = BasicLights::iterator;
 
-    IBasicLight::BasicLights mLights;
+    BasicLights mLights;
     BasicLightIterator mCurrentLight;
     std::size_t mCurrentIndex;
     bool mCompleted;

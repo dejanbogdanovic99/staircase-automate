@@ -4,6 +4,8 @@
 #include <mocks/BasicLightMock.hxx>
 
 #include <hal/Timing.hxx>
+
+#include <staircase/IBasicLight.hxx>
 #include <staircase/Moving.hxx>
 
 #include <algorithm>
@@ -30,37 +32,35 @@ class MovingTests : public ::testing::Test {
     void TearDown() {}
 
   protected:
-    std::array<NiceMock<mocks::BasicLightMock>,
-               staircase::IBasicLight::kLightNum>
+    std::array<NiceMock<mocks::BasicLightMock>, staircase::kLightNum>
         mBasicLights;
-    std::array<staircase::IBasicLight *, staircase::IBasicLight::kLightNum>
+    std::array<staircase::IBasicLight *, staircase::kLightNum>
         mBasicLightPointers;
-    std::array<staircase::IBasicLight *, staircase::IBasicLight::kLightNum>
+    std::array<staircase::IBasicLight *, staircase::kLightNum>
         mBasicLightReversePointers;
 };
 
 TEST_F(MovingTests, Initialization) {
     EXPECT_CALL(mBasicLights[0], turnOn(500)).Times(Exactly(1));
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::UP, 12000};
 }
 
 TEST_F(MovingTests, InitializationReverse) {
-    EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightNum - 1],
-                turnOn(500))
+    EXPECT_CALL(mBasicLights[staircase::kLightNum - 1], turnOn(500))
         .Times(Exactly(1));
-    staircase::Moving moving{staircase::IBasicLight::BasicLights{
-                                 std::begin(mBasicLightReversePointers),
-                                 std::end(mBasicLightReversePointers)},
-                             staircase::Moving::Direction::DOWN, 12000};
+    staircase::Moving moving{
+        staircase::BasicLights{std::begin(mBasicLightReversePointers),
+                               std::end(mBasicLightReversePointers)},
+        staircase::Moving::Direction::DOWN, 12000};
 }
 
 TEST_F(MovingTests, TimePassedCalculation) {
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::UP, 12000};
 
     InSequence s;
@@ -76,10 +76,10 @@ TEST_F(MovingTests, TimePassedCalculation) {
 }
 
 TEST_F(MovingTests, NearBeginCalculation) {
-    staircase::Moving moving{staircase::IBasicLight::BasicLights{
-                                 std::begin(mBasicLightReversePointers),
-                                 std::end(mBasicLightReversePointers)},
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{
+        staircase::BasicLights{std::begin(mBasicLightReversePointers),
+                               std::end(mBasicLightReversePointers)},
+        staircase::Moving::Direction::UP, 12000};
 
     InSequence s;
 
@@ -99,8 +99,8 @@ TEST_F(MovingTests, NearBeginCalculation) {
 
 TEST_F(MovingTests, NearEndCalculation) {
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::DOWN, 12100};
 
     InSequence s;
@@ -128,8 +128,8 @@ TEST_F(MovingTests, NearEndCalculation) {
 
 TEST_F(MovingTests, LightTurningOnLightOne) {
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::DOWN, 12000};
 
     InSequence s;
@@ -144,22 +144,20 @@ TEST_F(MovingTests, LightTurningOnLightOne) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightTwo) {
-    staircase::Moving moving{staircase::IBasicLight::BasicLights{
-                                 std::begin(mBasicLightReversePointers),
-                                 std::end(mBasicLightReversePointers)},
-                             staircase::Moving::Direction::DOWN, 12000};
+    staircase::Moving moving{
+        staircase::BasicLights{std::begin(mBasicLightReversePointers),
+                               std::end(mBasicLightReversePointers)},
+        staircase::Moving::Direction::DOWN, 12000};
 
     InSequence s;
 
     moving.update(300); // 300
     moving.update(300); // 600
     moving.update(300); // 900
-    EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightNum - 1 - 2],
-                turnOn(500))
+    EXPECT_CALL(mBasicLights[staircase::kLightNum - 1 - 2], turnOn(500))
         .Times(Exactly(1));
     moving.update(300); // 1200
-    EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightNum - 1 - 2],
-                turnOn(_))
+    EXPECT_CALL(mBasicLights[staircase::kLightNum - 1 - 2], turnOn(_))
         .Times(Exactly(0));
     moving.update(300);  // 1500
     moving.update(300);  // 1800
@@ -168,8 +166,8 @@ TEST_F(MovingTests, LightTurningOnLightTwo) {
 
 TEST_F(MovingTests, LightTurningOnLightThree) {
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::UP, 12000};
 
     InSequence s;
@@ -178,8 +176,7 @@ TEST_F(MovingTests, LightTurningOnLightThree) {
     moving.update(300); // 600
     moving.update(300); // 900
     moving.update(300); // 1200
-    EXPECT_CALL(mBasicLights[3],
-                turnOn(12000 / (staircase::IBasicLight::kLightNum + 1)))
+    EXPECT_CALL(mBasicLights[3], turnOn(12000 / (staircase::kLightNum + 1)))
         .Times(Exactly(1));
     moving.update(300); // 1500
     EXPECT_CALL(mBasicLights[3], turnOn(_)).Times(Exactly(0));
@@ -189,10 +186,10 @@ TEST_F(MovingTests, LightTurningOnLightThree) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightFour) {
-    staircase::Moving moving{staircase::IBasicLight::BasicLights{
-                                 std::begin(mBasicLightReversePointers),
-                                 std::end(mBasicLightReversePointers)},
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{
+        staircase::BasicLights{std::begin(mBasicLightReversePointers),
+                               std::end(mBasicLightReversePointers)},
+        staircase::Moving::Direction::UP, 12000};
 
     InSequence s;
 
@@ -205,12 +202,11 @@ TEST_F(MovingTests, LightTurningOnLightFour) {
     moving.update(300); // 2100
     moving.update(300); // 2400
     moving.update(300); // 2700
-    EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightNum - 1 - 4],
-                turnOn(12000 / (staircase::IBasicLight::kLightNum + 1)))
+    EXPECT_CALL(mBasicLights[staircase::kLightNum - 1 - 4],
+                turnOn(12000 / (staircase::kLightNum + 1)))
         .Times(Exactly(1));
     moving.update(300); // 3000
-    EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightNum - 1 - 4],
-                turnOn(_))
+    EXPECT_CALL(mBasicLights[staircase::kLightNum - 1 - 4], turnOn(_))
         .Times(Exactly(0));
     moving.update(300);  // 3300
     moving.update(300);  // 3600
@@ -219,8 +215,8 @@ TEST_F(MovingTests, LightTurningOnLightFour) {
 
 TEST_F(MovingTests, LightTurningOnLightFive) {
     staircase::Moving moving{
-        staircase::IBasicLight::BasicLights{std::begin(mBasicLightPointers),
-                                            std::end(mBasicLightPointers)},
+        staircase::BasicLights{std::begin(mBasicLightPointers),
+                               std::end(mBasicLightPointers)},
         staircase::Moving::Direction::DOWN, 12000};
 
     InSequence s;
@@ -238,8 +234,7 @@ TEST_F(MovingTests, LightTurningOnLightFive) {
     moving.update(300); // 3300
     moving.update(300); // 3600
     moving.update(300); // 3900
-    EXPECT_CALL(mBasicLights[5],
-                turnOn(12000 / (staircase::IBasicLight::kLightNum + 1)))
+    EXPECT_CALL(mBasicLights[5], turnOn(12000 / (staircase::kLightNum + 1)))
         .Times(Exactly(1));
     moving.update(300); // 4200
     EXPECT_CALL(mBasicLights[5], turnOn(_)).Times(Exactly(0));

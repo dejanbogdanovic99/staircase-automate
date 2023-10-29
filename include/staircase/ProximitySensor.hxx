@@ -1,6 +1,5 @@
 #pragma once
 
-#include <hal/BinaryValue.hxx>
 #include <hal/IBinaryValueReader.hxx>
 #include <hal/Timing.hxx>
 

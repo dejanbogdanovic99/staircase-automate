@@ -5,6 +5,7 @@
 
 #include <hal/BinaryValue.hxx>
 #include <hal/Timing.hxx>
+
 #include <staircase/ProximitySensor.hxx>
 
 namespace tests {

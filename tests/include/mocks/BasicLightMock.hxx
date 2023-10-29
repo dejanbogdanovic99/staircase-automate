@@ -1,5 +1,7 @@
 #include <gmock/gmock.h>
 
+#include <hal/Timing.hxx>
+
 #include <staircase/IBasicLight.hxx>
 
 namespace tests {

@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cstdint>
-#include <memory>
 
 namespace util {
 
@@ -47,24 +46,16 @@ template <class T, std::size_t N> class StaticDequeue {
             return *this;
         }
 
-        T *operator->() noexcept {
-            return reinterpret_cast<T *>(
-                &mDequeue.mArray[mPosition * kElementSize]);
-        }
+        T *operator->() noexcept { return &mDequeue.mArray[mPosition]; }
 
         const T *operator->() const noexcept {
-            return reinterpret_cast<T *>(
-                &mDequeue.mArray[mPosition * kElementSize]);
+            return &mDequeue.mArray[mPosition];
         }
 
-        T &operator*() noexcept {
-            return *(reinterpret_cast<T *>(
-                &mDequeue.mArray[mPosition * kElementSize]));
-        }
+        T &operator*() noexcept { return mDequeue.mArray[mPosition]; }
 
         const T &operator*() const noexcept {
-            return (reinterpret_cast<T *>(
-                &mDequeue.mArray[mPosition * kElementSize]));
+            return mDequeue.mArray[mPosition];
         }
 
         bool operator==(const Iterator &other) const noexcept {
@@ -88,6 +79,8 @@ template <class T, std::size_t N> class StaticDequeue {
     StaticDequeue(StaticDequeue &&) noexcept = default;
     StaticDequeue &operator=(const StaticDequeue &) noexcept = default;
     StaticDequeue &operator=(StaticDequeue &&) noexcept = default;
+
+    ~StaticDequeue() = default;
 
     Iterator begin() noexcept { return Iterator{*this, mFirst, 0}; }
 
@@ -116,10 +109,10 @@ template <class T, std::size_t N> class StaticDequeue {
             next -= N;
         }
 
-        T *element = new (&mArray[next * kElementSize]) T{std::move(value)};
+        mArray[next] = value;
         ++mSize;
 
-        return *element;
+        return mArray[next];
     }
 
     T &pushBack(const T &value) noexcept {
@@ -133,15 +126,15 @@ template <class T, std::size_t N> class StaticDequeue {
             next -= N;
         }
 
-        T *element = new (&mArray[next * kElementSize]) T{value};
+        mArray[next] = value;
         ++mSize;
 
-        return *element;
+        return mArray[next];
     }
 
     T &back() noexcept {
         if (empty()) {
-            return *reinterpret_cast<T *>(&mArray[mFirst * kElementSize]);
+            return mArray[mFirst];
         }
 
         std::size_t last = mFirst + mSize - 1;
@@ -150,7 +143,7 @@ template <class T, std::size_t N> class StaticDequeue {
             last -= N;
         }
 
-        return *reinterpret_cast<T *>(&mArray[last * kElementSize]);
+        return mArray[last];
     }
 
     void popFront() noexcept {
@@ -158,7 +151,7 @@ template <class T, std::size_t N> class StaticDequeue {
             return;
         }
 
-        T &element = *reinterpret_cast<T *>(&mArray[mFirst * kElementSize]);
+        T &element = mArray[mFirst];
         element.~T();
 
         ++mFirst;
@@ -170,22 +163,10 @@ template <class T, std::size_t N> class StaticDequeue {
         --mSize;
     }
 
-    T &front() noexcept {
-        return *reinterpret_cast<T *>(&mArray[mFirst * kElementSize]);
-    }
+    T &front() noexcept { return mArray[mFirst]; }
 
   private:
-    constexpr static std::size_t elementSize() {
-        if constexpr ((sizeof(T) % alignof(T)) == 0) {
-            return sizeof(T);
-        } else {
-            return sizeof(T) + (alignof(T) - (sizeof(T) % alignof(T)));
-        }
-    }
-
-    constexpr static std::size_t kElementSize = elementSize();
-
-    std::array<char, kElementSize * N> mArray;
+    std::array<T, N> mArray;
     std::size_t mSize{0};
     std::size_t mFirst{0};
 };

@@ -16,6 +16,7 @@ add_library(${STARICASE_LIB} STATIC
     src/staircase/BasicLight.cxx
     src/staircase/Moving.cxx
     src/staircase/ProximitySensor.cxx
+    src/staircase/StaircaseLooper.cxx
 )
 
 target_include_directories(${STARICASE_LIB}

@@ -4,6 +4,8 @@
 #include <hal/IBinaryValueWriter.hxx>
 #include <hal/Timing.hxx>
 
+#include <staircase/IBasicLight.hxx>
+
 #include <algorithm>
 
 using namespace staircase;
