@@ -1,8 +1,8 @@
 
-set(STAIRCASE_TEST_BINARY ${PROJECT_NAME}_bin)
+set(STAIRCASE_TESTS ${PROJECT_NAME}_tests)
 set(TESTS all-tests)
 
-add_executable(${STAIRCASE_TEST_BINARY}
+add_executable(${STAIRCASE_TESTS}
     src/BasicLightTests.cxx
     src/MovingTests.cxx
     src/ProximitySensorTests.cxx
@@ -11,17 +11,23 @@ add_executable(${STAIRCASE_TEST_BINARY}
     src/StaticMovingFactoryTests.cxx
 )
 
-target_include_directories(${STAIRCASE_TEST_BINARY}
+target_include_directories(${STAIRCASE_TESTS}
     PRIVATE
         include
 )
 
-target_link_libraries(${STAIRCASE_TEST_BINARY}
+if(BUILD_STATIC)
+    set(STAIRCASE_LIB ${STAIRCASE_LIB_STATIC})
+elseif(BUILD_SHARED)
+    set(STAIRCASE_LIB ${STAIRCASE_LIB_SHARED})
+endif()
+
+target_link_libraries(${STAIRCASE_TESTS}
     PUBLIC
         GTest::gtest
         GTest::gmock
         GTest::gtest_main
-        ${STARICASE_LIB}
+        ${STAIRCASE_LIB}
 )
 
-add_test(${TESTS} ${STAIRCASE_TEST_BINARY})
+add_test(${TESTS} ${STAIRCASE_TESTS})
