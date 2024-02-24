@@ -10,7 +10,7 @@ namespace staircase {
 class IMovingFactory {
   public:
     virtual ~IMovingFactory() = default;
-    virtual IMoving *create(BasicLights lights, IMoving::Direction direction,
+    virtual IMoving *create(BasicLights& lights, IMoving::Direction direction,
                             hal::Milliseconds duration) noexcept = 0;
     virtual void destroy(IMoving *moving) noexcept = 0;
 };

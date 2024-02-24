@@ -12,7 +12,7 @@ namespace mocks {
 class MovingFactoryMock : public staircase::IMovingFactory {
   public:
     MOCK_METHOD(staircase::IMoving *, create,
-                (staircase::BasicLights, staircase::IMoving::Direction,
+                (staircase::BasicLights&, staircase::IMoving::Direction,
                  hal::Milliseconds),
                 (noexcept));
     MOCK_METHOD(void, destroy, (staircase::IMoving * moving), (noexcept));

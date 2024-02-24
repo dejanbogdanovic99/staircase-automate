@@ -24,7 +24,7 @@ class StaticMovingFactory final : public IMovingFactory {
 
     ~StaticMovingFactory() = default;
 
-    IMoving *create(BasicLights lights, IMoving::Direction direction,
+    IMoving *create(BasicLights& lights, IMoving::Direction direction,
                     hal::Milliseconds duration) noexcept final {
         std::size_t index = 0;
         while (mOccupied[index] && (index < N)) {

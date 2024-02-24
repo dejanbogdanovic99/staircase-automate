@@ -20,7 +20,7 @@ class BasicMovingFactory final : public IMovingFactory {
 
     ~BasicMovingFactory() = default;
 
-    IMoving *create(BasicLights lights, IMoving::Direction direction,
+    IMoving *create(BasicLights& lights, IMoving::Direction direction,
                     hal::Milliseconds duration) noexcept final {
         return new Moving{lights, direction, duration};
     }
