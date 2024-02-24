@@ -11,7 +11,7 @@ ProximitySensor::ProximitySensor(
     : mBinaryValueReader{binaryValueReader}, mState{readState()},
       mStateChanged{false}, mTimePassed{hal::kForever} {}
 
-bool ProximitySensor::stateChanged() const noexcept { return mStateChanged; }
+bool ProximitySensor::hasStateChanged() const noexcept { return mStateChanged; }
 
 bool ProximitySensor::isClose() const noexcept {
     return mState == SensorState::CLOSE;

@@ -30,16 +30,17 @@ class StaircaseLooperTests : public ::testing::Test {
         std::transform(std::begin(mBasicLights), std::end(mBasicLights),
                        std::begin(mBasicLightPointers),
                        [](auto &basicLight) { return &basicLight; });
-        ON_CALL(mDownSensor, stateChanged()).WillByDefault(Return(false));
-        ON_CALL(mUpSensor, stateChanged()).WillByDefault(Return(false));
+        ON_CALL(mDownSensor, hasStateChanged()).WillByDefault(Return(false));
+        ON_CALL(mUpSensor, hasStateChanged()).WillByDefault(Return(false));
     }
 
     void TearDown() {}
 
   protected:
-    std::array<NiceMock<mocks::BasicLightMock>, staircase::kLightNum>
+    std::array<NiceMock<mocks::BasicLightMock>,
+               staircase::IBasicLight::kLightsNum>
         mBasicLights;
-    std::array<staircase::IBasicLight *, staircase::kLightNum>
+    std::array<staircase::IBasicLight *, staircase::IBasicLight::kLightsNum>
         mBasicLightPointers;
     NiceMock<mocks::ProximitySensorMock> mDownSensor;
     NiceMock<mocks::ProximitySensorMock> mUpSensor;
@@ -47,10 +48,8 @@ class StaircaseLooperTests : public ::testing::Test {
 };
 
 TEST_F(StaircaseLooperTests, LightUpdateCallCallChecks) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     constexpr hal::Milliseconds timeInterval = 1001;
 
@@ -64,10 +63,8 @@ TEST_F(StaircaseLooperTests, LightUpdateCallCallChecks) {
 }
 
 TEST_F(StaircaseLooperTests, SensorUpdateCallCallChecks) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     constexpr hal::Milliseconds timeInterval = 1001;
 
@@ -78,16 +75,14 @@ TEST_F(StaircaseLooperTests, SensorUpdateCallCallChecks) {
 }
 
 TEST_F(StaircaseLooperTests, OneUpMovingStarts) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     mocks::MovingMock moving;
 
     InSequence s;
 
-    EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(true));
+    EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(true));
     EXPECT_CALL(mDownSensor, isClose()).WillOnce(Return(true));
     EXPECT_CALL(mMovingFactory, create(_, staircase::IMoving::Direction::UP, _))
         .WillOnce(Return(&moving));
@@ -95,17 +90,15 @@ TEST_F(StaircaseLooperTests, OneUpMovingStarts) {
 }
 
 TEST_F(StaircaseLooperTests, OneUpMovingToStale) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     NiceMock<mocks::MovingMock> moving;
 
     {
         InSequence s;
 
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mDownSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory,
                     create(_, staircase::IMoving::Direction::UP, _))
@@ -119,7 +112,7 @@ TEST_F(StaircaseLooperTests, OneUpMovingToStale) {
         EXPECT_CALL(moving, update(_)).Times(Exactly(1));
         EXPECT_CALL(moving, isTooOld()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory, destroy(&moving)).Times(Exactly(1));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 
@@ -127,23 +120,21 @@ TEST_F(StaircaseLooperTests, OneUpMovingToStale) {
         InSequence s;
 
         EXPECT_CALL(moving, update(_)).Times(Exactly(0));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 }
 
 TEST_F(StaircaseLooperTests, OneUpMovingEndBySensor) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     NiceMock<mocks::MovingMock> moving;
 
     {
         InSequence s;
 
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mDownSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory,
                     create(_, staircase::IMoving::Direction::UP, _))
@@ -155,8 +146,8 @@ TEST_F(StaircaseLooperTests, OneUpMovingEndBySensor) {
         InSequence s;
 
         EXPECT_CALL(moving, update(100)).Times(Exactly(1));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(false));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mUpSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(moving, isNearEnd()).WillOnce(Return(true));
         EXPECT_CALL(moving, getTimePassed()).Times(Exactly(1));
@@ -168,23 +159,21 @@ TEST_F(StaircaseLooperTests, OneUpMovingEndBySensor) {
         InSequence s;
 
         EXPECT_CALL(moving, update(_)).Times(Exactly(0));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(false));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 }
 
 TEST_F(StaircaseLooperTests, OneDownMovingStarts) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     mocks::MovingMock moving;
 
     InSequence s;
 
-    EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(true));
+    EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(true));
     EXPECT_CALL(mUpSensor, isClose()).WillOnce(Return(true));
     EXPECT_CALL(mMovingFactory,
                 create(_, staircase::IMoving::Direction::DOWN, _))
@@ -193,17 +182,15 @@ TEST_F(StaircaseLooperTests, OneDownMovingStarts) {
 }
 
 TEST_F(StaircaseLooperTests, OneDownMovingToStale) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     NiceMock<mocks::MovingMock> moving;
 
     {
         InSequence s;
 
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mUpSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory,
                     create(_, staircase::IMoving::Direction::DOWN, _))
@@ -217,7 +204,7 @@ TEST_F(StaircaseLooperTests, OneDownMovingToStale) {
         EXPECT_CALL(moving, update(_)).Times(Exactly(1));
         EXPECT_CALL(moving, isTooOld()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory, destroy(&moving)).Times(Exactly(1));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 
@@ -225,23 +212,21 @@ TEST_F(StaircaseLooperTests, OneDownMovingToStale) {
         InSequence s;
 
         EXPECT_CALL(moving, update(_)).Times(Exactly(0));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 }
 
 TEST_F(StaircaseLooperTests, OneDownMovingEndBySensor) {
-    staircase::StaircaseLooper looper{
-        staircase::BasicLights{std::begin(mBasicLightPointers),
-                               std::end(mBasicLightPointers)},
-        mDownSensor, mUpSensor, mMovingFactory};
+    staircase::StaircaseLooper looper{mBasicLightPointers, mDownSensor,
+                                      mUpSensor, mMovingFactory};
 
     NiceMock<mocks::MovingMock> moving;
 
     {
         InSequence s;
 
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mUpSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(mMovingFactory,
                     create(_, staircase::IMoving::Direction::DOWN, _))
@@ -253,12 +238,12 @@ TEST_F(StaircaseLooperTests, OneDownMovingEndBySensor) {
         InSequence s;
 
         EXPECT_CALL(moving, update(100)).Times(Exactly(1));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(true));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(true));
         EXPECT_CALL(mDownSensor, isClose()).WillOnce(Return(true));
         EXPECT_CALL(moving, isNearEnd()).WillOnce(Return(true));
         EXPECT_CALL(moving, getTimePassed()).Times(Exactly(1));
         EXPECT_CALL(mMovingFactory, destroy(&moving)).Times(Exactly(1));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 
@@ -266,8 +251,8 @@ TEST_F(StaircaseLooperTests, OneDownMovingEndBySensor) {
         InSequence s;
 
         EXPECT_CALL(moving, update(_)).Times(Exactly(0));
-        EXPECT_CALL(mDownSensor, stateChanged()).WillOnce(Return(false));
-        EXPECT_CALL(mUpSensor, stateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mDownSensor, hasStateChanged()).WillOnce(Return(false));
+        EXPECT_CALL(mUpSensor, hasStateChanged()).WillOnce(Return(false));
         looper.update(100);
     }
 }

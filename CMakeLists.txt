@@ -14,6 +14,12 @@ if(NOT BUILD_STATIC AND NOT BUILD_SHARED)
     message(FATAL_ERROR "Cannot build without building libraries")
 endif()
 
+set(LIGHTS_NUM 8 CACHE STRING "Number of lights in the system")
+set(DEFAULT_ON_PERIOD 3000 CACHE STRING "Default number of milliseconds for light on state")
+set(DEBOUNCE_PERIOD 300 CACHE STRING "Debounce period for proximity sensor")
+set(MAX_MOVINGS 3 CACHE STRING "Number of one-direction movings allowed")
+set(MOVING_FINISH_DELTA 2000 CACHE STRING "Number of milliseconds around end which is considered valid")
+
 set(STAIRCASE_LIB_SRCS
     src/staircase/BasicLight.cxx
     src/staircase/Moving.cxx
@@ -32,6 +38,13 @@ if (BUILD_STATIC)
         PUBLIC
             include
     )
+
+    target_compile_definitions(${STAIRCASE_LIB_STATIC}
+        PUBLIC LIGHTS_NUM=${LIGHTS_NUM}
+        PUBLIC DEFAULT_ON_PERIOD=${DEFAULT_ON_PERIOD}
+        PUBLIC DEBOUNCE_PERIOD=${DEBOUNCE_PERIOD}
+        PUBLIC MAX_MOVINGS=${MAX_MOVINGS}
+        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA})
 endif()
 
 if (BUILD_SHARED)
@@ -45,6 +58,13 @@ if (BUILD_SHARED)
         PUBLIC
             include
     )
+
+    target_compile_definitions(${STAIRCASE_LIB_SHARED}
+        PUBLIC LIGHTS_NUM=${LIGHTS_NUM}
+        PUBLIC DEFAULT_ON_PERIOD=${DEFAULT_ON_PERIOD}
+        PUBLIC DEBOUNCE_PERIOD=${DEBOUNCE_PERIOD}
+        PUBLIC MAX_MOVINGS=${MAX_MOVINGS}
+        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA})
 endif()
 
 

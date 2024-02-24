@@ -10,7 +10,6 @@ namespace mocks {
 class BasicLightMock : public staircase::IBasicLight {
   public:
     MOCK_METHOD(void, turnOn, (hal::Milliseconds), (noexcept));
-    MOCK_METHOD(void, turnOff, (hal::Milliseconds), (noexcept));
     MOCK_METHOD(void, update, (hal::Milliseconds), (noexcept));
 };
 

@@ -9,13 +9,14 @@ namespace staircase {
 
 class IBasicLight {
   public:
+    static constexpr std::size_t kLightsNum = LIGHTS_NUM;
+
     virtual ~IBasicLight() = default;
-    virtual void turnOn(hal::Milliseconds millis) noexcept = 0;
-    virtual void turnOff(hal::Milliseconds millis) noexcept = 0;
+    virtual void
+    turnOn(hal::Milliseconds millis = DEFAULT_ON_PERIOD) noexcept = 0;
     virtual void update(hal::Milliseconds delta) noexcept = 0;
 };
 
-static constexpr std::size_t kLightNum = 8;
-using BasicLights = std::span<IBasicLight *, kLightNum>;
+using BasicLights = std::array<IBasicLight *, IBasicLight::kLightsNum>;
 
 } // namespace staircase

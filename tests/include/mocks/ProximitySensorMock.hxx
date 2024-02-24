@@ -9,7 +9,7 @@ namespace mocks {
 
 class ProximitySensorMock : public staircase::IProximitySensor {
   public:
-    MOCK_METHOD(bool, stateChanged, (), (const, noexcept));
+    MOCK_METHOD(bool, hasStateChanged, (), (const, noexcept));
     MOCK_METHOD(bool, isClose, (), (const, noexcept));
     MOCK_METHOD(bool, isFar, (), (const, noexcept));
     MOCK_METHOD(void, update, (hal::Milliseconds), (noexcept));

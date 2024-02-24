@@ -15,7 +15,6 @@ class MovingMock : public staircase::IMoving {
     MOCK_METHOD(bool, isNearEnd, (), (const, noexcept));
     MOCK_METHOD(bool, isNearBegin, (), (const, noexcept));
     MOCK_METHOD(bool, isTooOld, (), (const, noexcept));
-    MOCK_METHOD(void, complete, (), (noexcept));
 };
 
 } // namespace mocks

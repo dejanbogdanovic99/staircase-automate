@@ -11,14 +11,12 @@
 
 using namespace staircase;
 
-Moving::Moving(BasicLights lights, Direction direction,
+Moving::Moving(BasicLights &lights, IMoving::Direction direction,
                hal::Milliseconds duration) noexcept
-    : mLights{std::move(lights)}, mCurrentLight{std::begin(mLights)},
-      mCurrentIndex{0}, mCompleted{false}, mDirection{direction},
-      mDuration{duration}, mStandardOnDuration{static_cast<hal::Milliseconds>(
-                               mDuration / (kLightNum + 1))},
-      mTimeLeftUntillUpdate{calculateInterval()}, mTimePassed{0} {
-    (*mCurrentLight)->turnOn(mTimeLeftUntillUpdate);
+    : mLights{lights}, mCurrentIndex{0}, mCompleted{false},
+      mDirection{direction}, mExpectedDuration{duration},
+      mTimeLeftUntilUpdate{calculateInterval()}, mTimePassed{0} {
+    turnCurrentOn();
 }
 
 void Moving::update(hal::Milliseconds delta) noexcept {
@@ -27,23 +25,22 @@ void Moving::update(hal::Milliseconds delta) noexcept {
         return;
     }
 
-    while (delta >= mTimeLeftUntillUpdate) {
-        delta -= mTimeLeftUntillUpdate;
+    while (delta >= mTimeLeftUntilUpdate) {
+        delta -= mTimeLeftUntilUpdate;
 
-        ++mCurrentLight;
         ++mCurrentIndex;
 
-        if (mCurrentLight == std::end(mLights)) {
+        if (mCurrentIndex == mLights.size()) {
             mCompleted = true;
             return;
         }
 
-        mTimeLeftUntillUpdate = calculateInterval();
+        mTimeLeftUntilUpdate = calculateInterval();
 
-        (*mCurrentLight)->turnOn(mTimeLeftUntillUpdate);
+        turnCurrentOn();
     }
 
-    mTimeLeftUntillUpdate -= delta;
+    mTimeLeftUntilUpdate -= delta;
 }
 
 hal::Milliseconds Moving::getTimePassed() const noexcept { return mTimePassed; }
@@ -51,7 +48,7 @@ hal::Milliseconds Moving::getTimePassed() const noexcept { return mTimePassed; }
 bool Moving::isCompleted() const noexcept { return mCompleted; }
 
 bool Moving::isNearEnd() const noexcept {
-    return std::abs(mDuration - mTimePassed) < kCloseFinishDiff;
+    return std::abs(mExpectedDuration - mTimePassed) < kCloseFinishDiff;
 }
 
 bool Moving::isNearBegin() const noexcept {
@@ -59,16 +56,32 @@ bool Moving::isNearBegin() const noexcept {
 }
 
 bool Moving::isTooOld() const noexcept {
-    return mTimePassed > (mDuration + kCloseFinishDiff);
+    return mTimePassed > (mExpectedDuration + kCloseFinishDiff);
 }
-
-void Moving::complete() noexcept { mCompleted = true; }
 
 // TODO find better way
 hal::Milliseconds Moving::calculateInterval() const noexcept {
     if (mCurrentIndex < kFastRiseCount) {
         return kFastRiseTime;
     } else {
-        return mStandardOnDuration;
+        return mExpectedDuration / mLights.size();
     }
+}
+
+void Moving::turnCurrentOn() noexcept {
+    std::size_t currentIndex = 0;
+
+    switch (mDirection) {
+    case Direction::DOWN:
+        currentIndex = mLights.size() - 1 - mCurrentIndex;
+        break;
+    case Direction::UP:
+        currentIndex = mCurrentIndex;
+        break;
+    default:
+        currentIndex = 0;
+    }
+
+    // TODO: Calculate differently?
+    mLights[currentIndex]->turnOn();
 }

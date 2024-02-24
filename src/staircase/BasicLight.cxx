@@ -21,10 +21,6 @@ void BasicLight::turnOn(hal::Milliseconds millis) noexcept {
     setState(LightState::ON, millis);
 }
 
-void BasicLight::turnOff(hal::Milliseconds millis) noexcept {
-    setState(LightState::OFF, millis);
-}
-
 void BasicLight::update(hal::Milliseconds delta) noexcept {
     if (mTimeLeft < 0) {
         return;

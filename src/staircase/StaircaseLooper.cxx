@@ -11,14 +11,22 @@
 
 using namespace staircase;
 
-StaircaseLooper::StaircaseLooper(BasicLights lights,
+StaircaseLooper::StaircaseLooper(BasicLights &lights,
                                  IProximitySensor &downSensor,
                                  IProximitySensor &upSensor,
                                  IMovingFactory &movingFactory) noexcept
-    : mLights{std::move(lights)}, mDownSensor{downSensor}, mUpSensor{upSensor},
+    : mLights{lights}, mDownSensor{downSensor}, mUpSensor{upSensor},
       mMovingFactory{movingFactory},
       mDownMovingDuration{kInitialDownMovingDuration},
       mUpMovingDuration{kInitialUpMovingDuration} {}
+
+void StaircaseLooper::run(hal::ITiming &timing,
+                          hal::Milliseconds period) noexcept {
+    while (true) {
+        update(timing.getDelta());
+        timing.sleepFor(period);
+    }
+}
 
 void StaircaseLooper::update(hal::Milliseconds delta) noexcept {
 
@@ -29,11 +37,11 @@ void StaircaseLooper::update(hal::Milliseconds delta) noexcept {
     removeAllStaleMovings(mDownMovings);
     removeAllStaleMovings(mUpMovings);
 
-    if (mDownSensor.stateChanged()) {
+    if (mDownSensor.hasStateChanged()) {
         handleDownSensorStateChanged();
     }
 
-    if (mUpSensor.stateChanged()) {
+    if (mUpSensor.hasStateChanged()) {
         handleUpSensorStateChanged();
     }
 }
@@ -59,7 +67,7 @@ void StaircaseLooper::updateMovigns(hal::Milliseconds delta) noexcept {
 void StaircaseLooper::removeAllStaleMovings(Movings &movings) noexcept {
     while (!movings.empty() && movings.front()->isTooOld()) {
         mMovingFactory.destroy(movings.front());
-        movings.popFront();
+        movings.pop_front();
     }
 }
 
@@ -67,8 +75,9 @@ void StaircaseLooper::handleDownSensorStateChanged() {
     if (mDownSensor.isClose()) {
         if (isFirstMovingFinishing(mDownMovings)) {
             finishFirstMoving(mDownMovings, mDownMovingDuration);
-        } else if (!hasNewMovingJustStarted(mUpMovings) && !mUpMovings.full()) {
-            mUpMovings.pushBack(mMovingFactory.create(
+        } else if (!hasNewMovingJustStarted(mUpMovings) &&
+                   mUpMovings.size() < IMoving::kMaxMovings) {
+            mUpMovings.push_back(mMovingFactory.create(
                 mLights, IMoving::Direction::UP, mUpMovingDuration));
         } else {
             // IGNORE
@@ -81,8 +90,8 @@ void StaircaseLooper::handleUpSensorStateChanged() {
         if (isFirstMovingFinishing(mUpMovings)) {
             finishFirstMoving(mUpMovings, mUpMovingDuration);
         } else if (!hasNewMovingJustStarted(mDownMovings) &&
-                   !mDownMovings.full()) {
-            mDownMovings.pushBack(mMovingFactory.create(
+                   mDownMovings.size() < IMoving::kMaxMovings) {
+            mDownMovings.push_back(mMovingFactory.create(
                 mLights, IMoving::Direction::DOWN, mDownMovingDuration));
         } else {
             // IGNORE
@@ -113,9 +122,9 @@ void StaircaseLooper::finishFirstMoving(Movings &movings,
     }
 
     auto moving = movings.front();
+    movings.pop_front();
     auto currentDuration = moving->getTimePassed();
     mMovingFactory.destroy(moving);
-    movings.popFront();
 
     // TODO fix duration calculation
     duration = (duration + currentDuration) / 2;

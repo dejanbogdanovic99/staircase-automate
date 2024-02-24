@@ -16,7 +16,7 @@ namespace staircase {
 
 class StaircaseLooper final : public IStaircaseLooper {
   public:
-    StaircaseLooper(BasicLights lights, IProximitySensor &downSensor,
+    StaircaseLooper(BasicLights &lights, IProximitySensor &downSensor,
                     IProximitySensor &upSensor,
                     IMovingFactory &movingFactory) noexcept;
 
@@ -27,6 +27,8 @@ class StaircaseLooper final : public IStaircaseLooper {
 
     ~StaircaseLooper() = default;
 
+    [[noreturn]] void run(hal::ITiming &timing,
+                          hal::Milliseconds period) noexcept final;
     void update(hal::Milliseconds delta) noexcept final;
 
   private:
@@ -49,7 +51,7 @@ class StaircaseLooper final : public IStaircaseLooper {
     void finishFirstMoving(Movings &movings,
                            hal::Milliseconds &duration) noexcept;
 
-    BasicLights mLights;
+    BasicLights &mLights;
     IProximitySensor &mDownSensor;
     IProximitySensor &mUpSensor;
     IMovingFactory &mMovingFactory;

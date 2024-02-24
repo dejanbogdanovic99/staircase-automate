@@ -10,7 +10,6 @@ namespace staircase {
 class ProximitySensor final : public IProximitySensor {
   public:
     enum class SensorState { CLOSE, FAR };
-    static constexpr hal::Milliseconds kDebouncePeriod = 300;
 
     ProximitySensor(hal::IBinaryValueReader &binaryValueReader) noexcept;
 
@@ -21,13 +20,15 @@ class ProximitySensor final : public IProximitySensor {
 
     ~ProximitySensor() = default;
 
-    bool stateChanged() const noexcept final;
+    bool hasStateChanged() const noexcept final;
     bool isClose() const noexcept final;
     bool isFar() const noexcept final;
 
     void update(hal::Milliseconds delta) noexcept final;
 
   private:
+    static constexpr hal::Milliseconds kDebouncePeriod = DEBOUNCE_PERIOD;
+
     SensorState readState() noexcept;
 
     hal::IBinaryValueReader &mBinaryValueReader;

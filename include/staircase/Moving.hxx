@@ -9,9 +9,9 @@
 
 namespace staircase {
 
-class Moving final : public IMoving {
+class Moving : public IMoving {
   public:
-    Moving(BasicLights lights, Direction direction,
+    Moving(BasicLights &lights, Direction direction,
            hal::Milliseconds duration) noexcept;
 
     Moving(const Moving &) = delete;
@@ -27,24 +27,21 @@ class Moving final : public IMoving {
     bool isNearEnd() const noexcept final;
     bool isNearBegin() const noexcept final;
     bool isTooOld() const noexcept final;
-    void complete() noexcept final;
 
   private:
-    static constexpr hal::Milliseconds kCloseFinishDiff = 2000;
-    static constexpr hal::Milliseconds kFastRiseTime = 500;
-    static constexpr std::size_t kFastRiseCount = 3;
+    void turnCurrentOn() noexcept;
     hal::Milliseconds calculateInterval() const noexcept;
 
-    using BasicLightIterator = BasicLights::iterator;
+    static constexpr hal::Milliseconds kCloseFinishDiff = MOVING_FINISH_DELTA;
+    static constexpr hal::Milliseconds kFastRiseTime = 500;
+    static constexpr std::size_t kFastRiseCount = 3;
 
-    BasicLights mLights;
-    BasicLightIterator mCurrentLight;
+    BasicLights &mLights;
     std::size_t mCurrentIndex;
     bool mCompleted;
     Direction mDirection;
-    hal::Milliseconds mDuration;
-    hal::Milliseconds mStandardOnDuration;
-    hal::Milliseconds mTimeLeftUntillUpdate;
+    hal::Milliseconds mExpectedDuration;
+    hal::Milliseconds mTimeLeftUntilUpdate;
     hal::Milliseconds mTimePassed;
 };
 
