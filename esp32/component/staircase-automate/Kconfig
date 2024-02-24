@@ -5,7 +5,7 @@ menu "Staircase automate"
         default 8
 
     config DEFAULT_ON_PERIOD
-        int "Default amount of milliseconds for light on state"
+        int "Default number of milliseconds for light on state"
         default 3000
 
     config DEBOUNCE_PERIOD
@@ -14,6 +14,10 @@ menu "Staircase automate"
 
     config MAX_MOVINGS
         int "Number of one-direction movings allowed"
+        default 3
+
+    config MOVING_FINISH_DELTA
+        int "Number of milliseconds around end which is considered valid"
         default 3
 
 endmenu
