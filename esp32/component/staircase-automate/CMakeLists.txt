@@ -8,7 +8,12 @@ idf_component_register(
         ../../../include
 )
 
-idf_component_set_property(
-    staircase-automate
-        COMPILE_OPTIONS "-Wall -Werror -fno-exceptions" APPEND
+target_compile_definitions(${COMPONENT_LIB}
+    PUBLIC LIGHTS_NUM=${CONFIG_LIGHTS_NUM}
+    PUBLIC DEFAULT_ON_PERIOD=${CONFIG_DEFAULT_ON_PERIOD}
+    PUBLIC DEBOUNCE_PERIOD=${CONFIG_DEBOUNCE_PERIOD}
+    PUBLIC MAX_MOVINGS=${CONFIG_MAX_MOVINGS}
+    PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA}
 )
+
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Werror -fno-exceptions)

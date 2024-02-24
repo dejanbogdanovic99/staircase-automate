@@ -1,0 +1,19 @@
+menu "Staircase automate"
+
+    config LIGHTS_NUM
+        int "Number of lights in the system"
+        default 8
+
+    config DEFAULT_ON_PERIOD
+        int "Default amount of milliseconds for light on state"
+        default 3000
+
+    config DEBOUNCE_PERIOD
+        int "Debounce period for proximity sensor"
+        default 300
+
+    config MAX_MOVINGS
+        int "Number of one-direction movings allowed"
+        default 3
+
+endmenu
