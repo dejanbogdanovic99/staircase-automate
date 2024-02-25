@@ -2,6 +2,6 @@
 
 namespace hal {
 
-enum class BinaryValue { HIGH, LOW };
+enum class BinaryValue { LOW, HIGH };
 
 } // namespace hal

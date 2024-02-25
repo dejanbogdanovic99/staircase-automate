@@ -9,7 +9,7 @@ namespace staircase {
 
 class IBasicLight {
   public:
-    enum class LightState { ON, OFF };
+    enum class LightState { OFF, ON };
 
     static constexpr std::size_t kLightsNum = LIGHTS_NUM;
 

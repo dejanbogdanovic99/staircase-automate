@@ -18,6 +18,6 @@ menu "Staircase automate"
 
     config MOVING_FINISH_DELTA
         int "Number of milliseconds around end which is considered valid"
-        default 3
+        default 2000
 
 endmenu
