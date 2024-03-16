@@ -20,4 +20,8 @@ menu "Staircase automate"
         int "Number of milliseconds around end which is considered valid"
         default 2000
 
+    config INITIAL_MOVING_DURATION
+        int "Initial number of milliseconds for movings"
+        default 12000
+
 endmenu

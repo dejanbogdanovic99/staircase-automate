@@ -11,6 +11,7 @@
 #include <util/StaticDequeue.hxx>
 
 #include <cstdint>
+#include <mutex>
 
 namespace staircase {
 
@@ -28,11 +29,11 @@ class StaircaseLooper final : public IStaircaseLooper {
     ~StaircaseLooper() = default;
 
     void update(hal::Milliseconds delta) noexcept final;
+    std::lock_guard<std::mutex> block() noexcept final;
 
   private:
-    static constexpr std::size_t kMovingsAllowed = 3;
-    static constexpr hal::Milliseconds kInitialDownMovingDuration = 12000;
-    static constexpr hal::Milliseconds kInitialUpMovingDuration = 12000;
+    static constexpr hal::Milliseconds kInitialMovingDuration =
+        INITIAL_MOVING_DURATION;
 
     void updateLights(hal::Milliseconds delta) noexcept;
     void updateSensors(hal::Milliseconds delta) noexcept;
@@ -58,6 +59,8 @@ class StaircaseLooper final : public IStaircaseLooper {
     hal::Milliseconds mUpMovingDuration;
     Movings mDownMovings;
     Movings mUpMovings;
+
+    std::mutex mLock;
 };
 
 } // namespace staircase

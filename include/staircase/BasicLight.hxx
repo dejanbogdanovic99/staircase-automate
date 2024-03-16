@@ -19,7 +19,7 @@ class BasicLight final : public IBasicLight {
 
     ~BasicLight() = default;
 
-    void turnOn(hal::Milliseconds millis = DEFAULT_ON_PERIOD) noexcept final;
+    void turnOn(hal::Milliseconds millis = kDefaultOnPeriod) noexcept final;
     void turnOff() noexcept final;
     void update(hal::Milliseconds delta) noexcept final;
 

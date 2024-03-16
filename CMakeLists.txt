@@ -19,12 +19,17 @@ set(DEFAULT_ON_PERIOD 3000 CACHE STRING "Default number of milliseconds for ligh
 set(DEBOUNCE_PERIOD 300 CACHE STRING "Debounce period for proximity sensor")
 set(MAX_MOVINGS 3 CACHE STRING "Number of one-direction movings allowed")
 set(MOVING_FINISH_DELTA 2000 CACHE STRING "Number of milliseconds around end which is considered valid")
+set(INITIAL_MOVING_DURATION 12000 CACHE STRING "Initial number of milliseconds for movings")
 
 set(STAIRCASE_LIB_SRCS
     src/staircase/BasicLight.cxx
     src/staircase/Moving.cxx
     src/staircase/ProximitySensor.cxx
     src/staircase/StaircaseLooper.cxx
+    src/staircase/StaircaseHandlingTask.cxx
+    src/staircase/PowerTask.cxx
+    src/staircase/NTPTask.cxx
+    src/hal/Task.cxx
 )
 
 if (BUILD_STATIC)
@@ -44,7 +49,8 @@ if (BUILD_STATIC)
         PUBLIC DEFAULT_ON_PERIOD=${DEFAULT_ON_PERIOD}
         PUBLIC DEBOUNCE_PERIOD=${DEBOUNCE_PERIOD}
         PUBLIC MAX_MOVINGS=${MAX_MOVINGS}
-        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA})
+        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA}
+        PUBLIC INITIAL_MOVING_DURATION=${INITIAL_MOVING_DURATION})
 endif()
 
 if (BUILD_SHARED)
@@ -64,7 +70,8 @@ if (BUILD_SHARED)
         PUBLIC DEFAULT_ON_PERIOD=${DEFAULT_ON_PERIOD}
         PUBLIC DEBOUNCE_PERIOD=${DEBOUNCE_PERIOD}
         PUBLIC MAX_MOVINGS=${MAX_MOVINGS}
-        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA})
+        PUBLIC MOVING_FINISH_DELTA=${MOVING_FINISH_DELTA}
+        PUBLIC INITIAL_MOVING_DURATION=${INITIAL_MOVING_DURATION})
 endif()
 
 

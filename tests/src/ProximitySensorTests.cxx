@@ -10,9 +10,6 @@
 
 namespace tests {
 
-using ::testing::_;
-using ::testing::Exactly;
-using ::testing::InSequence;
 using ::testing::NiceMock;
 using ::testing::Return;
 
@@ -73,7 +70,8 @@ TEST_F(
 
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    EXPECT_CALL(mBinaryValueReader, readValue()).Times(3)
+    EXPECT_CALL(mBinaryValueReader, readValue())
+        .Times(3)
         .WillRepeatedly(Return(hal::BinaryValue::HIGH));
     proximitySensor.update(130);
     proximitySensor.update(130);
@@ -112,7 +110,8 @@ TEST_F(
 
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    EXPECT_CALL(mBinaryValueReader, readValue()).Times(3)
+    EXPECT_CALL(mBinaryValueReader, readValue())
+        .Times(3)
         .WillRepeatedly(Return(hal::BinaryValue::LOW));
     proximitySensor.update(130);
     proximitySensor.update(130);

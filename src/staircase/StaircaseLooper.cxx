@@ -8,6 +8,7 @@
 #include <staircase/IProximitySensor.hxx>
 
 #include <algorithm>
+#include <mutex>
 
 using namespace staircase;
 
@@ -17,10 +18,11 @@ StaircaseLooper::StaircaseLooper(BasicLights &lights,
                                  IMovingFactory &movingFactory) noexcept
     : mLights{lights}, mDownSensor{downSensor}, mUpSensor{upSensor},
       mMovingFactory{movingFactory},
-      mDownMovingDuration{kInitialDownMovingDuration},
-      mUpMovingDuration{kInitialUpMovingDuration} {}
+      mDownMovingDuration{kInitialMovingDuration},
+      mUpMovingDuration{kInitialMovingDuration} {}
 
 void StaircaseLooper::update(hal::Milliseconds delta) noexcept {
+    std::lock_guard<std::mutex> lock{mLock};
 
     updateLights(delta);
     updateSensors(delta);
@@ -36,6 +38,10 @@ void StaircaseLooper::update(hal::Milliseconds delta) noexcept {
     if (mUpSensor.hasStateChanged() && mUpSensor.isClose()) {
         handleUpSensorStateChanged();
     }
+}
+
+std::lock_guard<std::mutex> StaircaseLooper::block() noexcept {
+    return std::lock_guard<std::mutex>{mLock};
 }
 
 void StaircaseLooper::updateLights(hal::Milliseconds delta) noexcept {
