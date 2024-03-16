@@ -10,7 +10,7 @@ namespace staircase {
 
 class PowerRunnable : public IRunnable {
   public:
-    static constexpr hal::Milliseconds kUpdateInterval = 1000 * 1000;
+    static constexpr hal::Milliseconds kUpdateInterval = 1000;
     PowerRunnable(hal::IRTC &rtc, hal::IPowerManager &powerManager);
 
   private:

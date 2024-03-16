@@ -10,7 +10,7 @@ namespace staircase {
 
 class NTPRunnable : public IRunnable {
   public:
-    static constexpr hal::Milliseconds kUpdateInterval = 10 * 60 * 1000;
+    static constexpr hal::Milliseconds kUpdateInterval = 60 * 1000;
     NTPRunnable(hal::IRTC &rtc, hal::INTP &ntp);
 
   private:

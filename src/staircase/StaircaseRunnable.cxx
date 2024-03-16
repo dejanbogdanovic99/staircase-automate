@@ -7,9 +7,13 @@
 
 using namespace staircase;
 
-StaircaseRunnable::StaircaseRunnable(hal::ITask &task, IStaircaseLooper &looper)
-    : mStaircaseLooper{looper}, mTask{task} {}
+StaircaseRunnable::StaircaseRunnable(IStaircaseLooper &looper)
+    : mStaircaseLooper{looper} {}
 
 void StaircaseRunnable::run() noexcept {
-    mStaircaseLooper.update(mTask.getDelta());
+    hal::Milliseconds delta = kUpdateInterval;
+    if (mTask) {
+        delta = mTask->getDelta();
+    }
+    mStaircaseLooper.update(delta);
 }

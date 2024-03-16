@@ -14,14 +14,13 @@ class ITask {
     virtual ~ITask() = default;
 
     virtual Milliseconds getDelta() const noexcept = 0;
+    void loop() noexcept;
 
   protected:
     virtual void sleep() noexcept = 0;
     hal::Milliseconds mPeriod;
 
   private:
-    void loop() noexcept;
-
     staircase::IRunnable &mRunnable;
     std::atomic_bool mRunning;
 };

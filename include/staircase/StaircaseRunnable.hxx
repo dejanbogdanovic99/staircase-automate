@@ -10,14 +10,13 @@ namespace staircase {
 
 class StaircaseRunnable : public IRunnable {
   public:
-    static constexpr hal::Milliseconds kUpdateInterval = 15 * 1000;
+    static constexpr hal::Milliseconds kUpdateInterval = 10;
 
-    StaircaseRunnable(hal::ITask &task, IStaircaseLooper &looper);
+    StaircaseRunnable(IStaircaseLooper &looper);
 
   private:
     void run() noexcept final;
 
     IStaircaseLooper &mStaircaseLooper;
-    hal::ITask &mTask;
 };
 } // namespace staircase
