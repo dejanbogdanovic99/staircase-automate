@@ -10,15 +10,18 @@
 
 using namespace staircase;
 
-BasicLight::BasicLight(hal::IBinaryValueWriter &binaryValueWriter,
-                       LightState lightState, hal::Milliseconds millis) noexcept
-    : mBinaryValueWriter{binaryValueWriter}, mState{lightState},
-      mTimeLeft{millis} {
+BasicLight::BasicLight(hal::IBinaryValueWriter &binaryValueWriter) noexcept
+    : mBinaryValueWriter{binaryValueWriter}, mState{LightState::OFF},
+      mTimeLeft{hal::kForever} {
     writeState();
 }
 
 void BasicLight::turnOn(hal::Milliseconds millis) noexcept {
     setState(LightState::ON, millis);
+}
+
+void BasicLight::turnOff() noexcept {
+    setState(LightState::OFF, hal::kForever);
 }
 
 void BasicLight::update(hal::Milliseconds delta) noexcept {
@@ -27,15 +30,15 @@ void BasicLight::update(hal::Milliseconds delta) noexcept {
     }
 
     if (delta >= mTimeLeft) {
-        mTimeLeft = hal::kForever;
-        changeToOtherState();
-        writeState();
+        setState(LightState::OFF, hal::kForever);
     } else {
         mTimeLeft -= delta;
     }
 }
 
-BasicLight::LightState BasicLight::getState() const noexcept { return mState; }
+bool BasicLight::isOn() const noexcept { return mState == LightState::ON; }
+
+bool BasicLight::isOff() const noexcept { return mState == LightState::OFF; }
 
 void BasicLight::setState(LightState state, hal::Milliseconds millis) noexcept {
     if (mState != state) {
@@ -64,16 +67,4 @@ void BasicLight::writeState() noexcept {
     }
 
     mBinaryValueWriter.writeValue(binaryValue);
-}
-
-void BasicLight::changeToOtherState() noexcept {
-    switch (mState) {
-    case LightState::ON:
-        mState = LightState::OFF;
-        break;
-    case LightState::OFF:
-    default:
-        mState = LightState::ON;
-        break;
-    }
 }

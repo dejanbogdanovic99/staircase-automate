@@ -16,17 +16,13 @@ using ::testing::InSequence;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-class ProximitySensorTests : public ::testing::Test {
-  public:
-    void SetUp() {}
-
-    void TearDown() {}
-
+class ProximitySensorTestsInitialization : public ::testing::Test {
   protected:
     NiceMock<mocks::BinaryValueReaderMock> mBinaryValueReader;
 };
 
-TEST_F(ProximitySensorTests, InitializationWithFar) {
+TEST_F(ProximitySensorTestsInitialization,
+       GivenProximitySensorIsInitializedWithLowValueItIsFarAndHasNotChanged) {
     EXPECT_CALL(mBinaryValueReader, readValue())
         .WillOnce(Return(hal::BinaryValue::LOW));
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
@@ -36,7 +32,9 @@ TEST_F(ProximitySensorTests, InitializationWithFar) {
     EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
 
-TEST_F(ProximitySensorTests, InitializationWithClose) {
+TEST_F(
+    ProximitySensorTestsInitialization,
+    GivenProximitySensorIsInitializedWithHighValueItIsCloseAndHasNotChanged) {
     EXPECT_CALL(mBinaryValueReader, readValue())
         .WillOnce(Return(hal::BinaryValue::HIGH));
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
@@ -46,164 +44,82 @@ TEST_F(ProximitySensorTests, InitializationWithClose) {
     EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
 
-TEST_F(ProximitySensorTests, FarToCloseUpdateStateTooFast) {
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
+class ProximitySensorTestsInitialStateFar
+    : public ProximitySensorTestsInitialization {
+
+    void SetUp() override {
+        ON_CALL(mBinaryValueReader, readValue())
+            .WillByDefault(Return(hal::BinaryValue::LOW));
+    }
+};
+
+TEST_F(
+    ProximitySensorTestsInitialStateFar,
+    GivenStateChangesToCloseButNotEnoughTimePassesStateIsStillFarAndItHasNotChanged) {
+
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    InSequence s;
-
     EXPECT_CALL(mBinaryValueReader, readValue())
         .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
     proximitySensor.update(100);
     EXPECT_TRUE(proximitySensor.isFar());
     EXPECT_FALSE(proximitySensor.isClose());
     EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
 
-TEST_F(ProximitySensorTests, FarToClosSuccessfullUpdate) {
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
+TEST_F(
+    ProximitySensorTestsInitialStateFar,
+    GivenStateChangesToCloseAndEnoughTimePassesStateBecomesCloseAndItHasChanged) {
+
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    InSequence s;
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(280);
-    EXPECT_TRUE(proximitySensor.isClose());
+    EXPECT_CALL(mBinaryValueReader, readValue()).Times(3)
+        .WillRepeatedly(Return(hal::BinaryValue::HIGH));
+    proximitySensor.update(130);
+    proximitySensor.update(130);
+    proximitySensor.update(130);
     EXPECT_FALSE(proximitySensor.isFar());
+    EXPECT_TRUE(proximitySensor.isClose());
     EXPECT_TRUE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
 
-TEST_F(ProximitySensorTests, FarCloseInvalidUpdatesToClosSuccessfullUpdate) {
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
+class ProximitySensorTestsInitialStateClose
+    : public ProximitySensorTestsInitialization {
+
+    void SetUp() override {
+        ON_CALL(mBinaryValueReader, readValue())
+            .WillByDefault(Return(hal::BinaryValue::HIGH));
+    }
+};
+
+TEST_F(
+    ProximitySensorTestsInitialStateClose,
+    GivenStateChangesToFarButNotEnoughTimePassesStateIsStillCloseAndItHasNotChanged) {
+
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    InSequence s;
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
     EXPECT_CALL(mBinaryValueReader, readValue())
         .WillOnce(Return(hal::BinaryValue::LOW));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(280);
-    EXPECT_TRUE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.isFar());
-    EXPECT_TRUE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
     proximitySensor.update(100);
     EXPECT_TRUE(proximitySensor.isClose());
     EXPECT_FALSE(proximitySensor.isFar());
     EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
 
-TEST_F(ProximitySensorTests, FarClosFarSuccessfullUpdate) {
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
+TEST_F(
+    ProximitySensorTestsInitialStateClose,
+    GivenStateChangesToFarAndEnoughTimePassesStateBecomesFarAndItHasChanged) {
+
     staircase::ProximitySensor proximitySensor{mBinaryValueReader};
 
-    InSequence s;
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
+    EXPECT_CALL(mBinaryValueReader, readValue()).Times(3)
+        .WillRepeatedly(Return(hal::BinaryValue::LOW));
+    proximitySensor.update(130);
+    proximitySensor.update(130);
+    proximitySensor.update(130);
     EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(280);
-    EXPECT_TRUE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.isFar());
+    EXPECT_TRUE(proximitySensor.isFar());
     EXPECT_TRUE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::HIGH));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
-    proximitySensor.update(280);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_TRUE(proximitySensor.hasStateChanged());
-
-    EXPECT_CALL(mBinaryValueReader, readValue())
-        .WillOnce(Return(hal::BinaryValue::LOW));
-    proximitySensor.update(100);
-    EXPECT_TRUE(proximitySensor.isFar());
-    EXPECT_FALSE(proximitySensor.isClose());
-    EXPECT_FALSE(proximitySensor.hasStateChanged());
 }
-
-// TODO: add specific use case tests
 
 } // namespace tests

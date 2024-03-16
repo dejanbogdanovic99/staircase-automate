@@ -2,8 +2,9 @@
 
 #include <hal/Timing.hxx>
 
-// #include <util/StaticDequeue.hxx>
 #include <deque>
+#include <functional>
+#include <memory>
 
 namespace staircase {
 
@@ -22,6 +23,7 @@ class IMoving {
     virtual bool isTooOld() const noexcept = 0;
 };
 
-using Movings = std::deque<IMoving *>;
+using MovingPtr = std::unique_ptr<IMoving, std::function<void(IMoving *)>>;
+using Movings = std::deque<MovingPtr>;
 
 } // namespace staircase

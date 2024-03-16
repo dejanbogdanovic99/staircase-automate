@@ -83,5 +83,5 @@ void Moving::turnCurrentOn() noexcept {
     }
 
     // TODO: Calculate differently?
-    mLights[currentIndex]->turnOn();
+    mLights[currentIndex].get().turnOn();
 }

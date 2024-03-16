@@ -20,11 +20,10 @@ class BasicMovingFactory final : public IMovingFactory {
 
     ~BasicMovingFactory() = default;
 
-    IMoving *create(BasicLights& lights, IMoving::Direction direction,
+    MovingPtr create(BasicLights& lights, IMoving::Direction direction,
                     hal::Milliseconds duration) noexcept final {
-        return new Moving{lights, direction, duration};
+        return MovingPtr{new Moving{lights, direction, duration}, [](IMoving* moving) { delete moving;}};
     }
-    void destroy(IMoving *moving) noexcept final { delete moving; }
 };
 
 } // namespace staircase

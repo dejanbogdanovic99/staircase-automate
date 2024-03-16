@@ -10,9 +10,7 @@ namespace staircase {
 
 class BasicLight final : public IBasicLight {
   public:
-    BasicLight(hal::IBinaryValueWriter &binaryValueWriter,
-               LightState lightState = LightState::OFF,
-               hal::Milliseconds millis = hal::kForever) noexcept;
+    BasicLight(hal::IBinaryValueWriter &binaryValueWriter) noexcept;
 
     BasicLight(const BasicLight &) = delete;
     BasicLight(BasicLight &&) noexcept = delete;
@@ -22,14 +20,17 @@ class BasicLight final : public IBasicLight {
     ~BasicLight() = default;
 
     void turnOn(hal::Milliseconds millis = DEFAULT_ON_PERIOD) noexcept final;
+    void turnOff() noexcept final;
     void update(hal::Milliseconds delta) noexcept final;
 
-    LightState getState() const noexcept final; 
+    bool isOn() const noexcept final;
+    bool isOff() const noexcept final;
 
   private:
+    enum class LightState { OFF, ON };
+
     void setState(LightState state, hal::Milliseconds millis) noexcept;
     void writeState() noexcept;
-    void changeToOtherState() noexcept;
 
     hal::IBinaryValueWriter &mBinaryValueWriter;
     LightState mState;

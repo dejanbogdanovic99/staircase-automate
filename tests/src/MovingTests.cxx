@@ -20,39 +20,35 @@ using ::testing::NiceMock;
 
 class MovingTests : public ::testing::Test {
   public:
-    void SetUp() {
-        std::transform(std::begin(mBasicLights), std::end(mBasicLights),
-                       std::begin(mBasicLightPointers),
-                       [](auto &basicLight) { return &basicLight; });
-    }
-
-    void TearDown() {}
+    MovingTests()
+        : mBasicLightRefs{mBasicLights[0], mBasicLights[1], mBasicLights[2],
+                          mBasicLights[3], mBasicLights[4], mBasicLights[5],
+                          mBasicLights[6], mBasicLights[7]} {}
 
   protected:
     std::array<NiceMock<mocks::BasicLightMock>,
                staircase::IBasicLight::kLightsNum>
         mBasicLights;
-    std::array<staircase::IBasicLight *, staircase::IBasicLight::kLightsNum>
-        mBasicLightPointers;
+    staircase::BasicLights mBasicLightRefs;
 };
 
 TEST_F(MovingTests, Initialization) {
     EXPECT_CALL(mBasicLights[0], turnOn(DEFAULT_ON_PERIOD)).Times(Exactly(1));
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 }
 
 TEST_F(MovingTests, InitializationReverse) {
     EXPECT_CALL(mBasicLights[staircase::IBasicLight::kLightsNum - 1],
                 turnOn(DEFAULT_ON_PERIOD))
         .Times(Exactly(1));
-    staircase::Moving moving{mBasicLightPointers,
+    staircase::Moving moving{mBasicLightRefs,
                              staircase::Moving::Direction::DOWN, 12000};
 }
 
 TEST_F(MovingTests, TimePassedCalculation) {
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 
     InSequence s;
 
@@ -67,8 +63,8 @@ TEST_F(MovingTests, TimePassedCalculation) {
 }
 
 TEST_F(MovingTests, NearBeginCalculation) {
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 
     InSequence s;
 
@@ -87,7 +83,7 @@ TEST_F(MovingTests, NearBeginCalculation) {
 }
 
 TEST_F(MovingTests, NearEndCalculation) {
-    staircase::Moving moving{mBasicLightPointers,
+    staircase::Moving moving{mBasicLightRefs,
                              staircase::Moving::Direction::DOWN, 12100};
 
     InSequence s;
@@ -114,8 +110,8 @@ TEST_F(MovingTests, NearEndCalculation) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightOne) {
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 
     InSequence s;
 
@@ -129,7 +125,7 @@ TEST_F(MovingTests, LightTurningOnLightOne) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightTwo) {
-    staircase::Moving moving{mBasicLightPointers,
+    staircase::Moving moving{mBasicLightRefs,
                              staircase::Moving::Direction::DOWN, 12000};
 
     InSequence s;
@@ -150,8 +146,8 @@ TEST_F(MovingTests, LightTurningOnLightTwo) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightThree) {
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 
     InSequence s;
 
@@ -168,7 +164,7 @@ TEST_F(MovingTests, LightTurningOnLightThree) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightFour) {
-    staircase::Moving moving{mBasicLightPointers,
+    staircase::Moving moving{mBasicLightRefs,
                              staircase::Moving::Direction::DOWN, 12000};
 
     InSequence s;
@@ -195,8 +191,8 @@ TEST_F(MovingTests, LightTurningOnLightFour) {
 }
 
 TEST_F(MovingTests, LightTurningOnLightFive) {
-    staircase::Moving moving{mBasicLightPointers,
-                             staircase::Moving::Direction::UP, 12000};
+    staircase::Moving moving{mBasicLightRefs, staircase::Moving::Direction::UP,
+                             12000};
 
     InSequence s;
 

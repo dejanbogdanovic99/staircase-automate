@@ -27,8 +27,6 @@ class StaircaseLooper final : public IStaircaseLooper {
 
     ~StaircaseLooper() = default;
 
-    [[noreturn]] void run(hal::ITiming &timing,
-                          hal::Milliseconds period) noexcept final;
     void update(hal::Milliseconds delta) noexcept final;
 
   private:
@@ -47,6 +45,7 @@ class StaircaseLooper final : public IStaircaseLooper {
 
     bool isFirstMovingFinishing(Movings &movings) const noexcept;
     bool hasNewMovingJustStarted(Movings &movings) const noexcept;
+    bool isMoreNewMovingsAvailable(Movings &movings) const noexcept;
 
     void finishFirstMoving(Movings &movings,
                            hal::Milliseconds &duration) noexcept;

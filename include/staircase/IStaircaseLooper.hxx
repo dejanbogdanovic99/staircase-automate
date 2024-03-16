@@ -8,8 +8,6 @@ namespace staircase {
 class IStaircaseLooper {
   public:
     virtual ~IStaircaseLooper() = default;
-    [[noreturn]] virtual void run(hal::ITiming &timing,
-                                  hal::Milliseconds period) noexcept = 0;
     virtual void update(hal::Milliseconds delta) noexcept = 0;
 };
 
