@@ -2,18 +2,18 @@
 
 #include <hal/IPowerManager.hxx>
 #include <hal/IRTC.hxx>
-#include <hal/Task.hxx>
 #include <hal/Timing.hxx>
+
+#include <staircase/IRunnable.hxx>
 
 namespace staircase {
 
-class PowerTask : public hal::Task {
+class PowerRunnable : public IRunnable {
   public:
-    PowerTask(hal::IRTC &rtc, hal::IPowerManager &powerManager);
+    static constexpr hal::Milliseconds kUpdateInterval = 1000 * 1000;
+    PowerRunnable(hal::IRTC &rtc, hal::IPowerManager &powerManager);
 
   private:
-    static constexpr hal::Milliseconds kUpdateInterval = 1000;
-
     void run() noexcept final;
 
     hal::IRTC &mRtc;

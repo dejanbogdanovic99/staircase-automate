@@ -2,18 +2,18 @@
 
 #include <hal/INTP.hxx>
 #include <hal/IRTC.hxx>
-#include <hal/Task.hxx>
 #include <hal/Timing.hxx>
+
+#include <staircase/IRunnable.hxx>
 
 namespace staircase {
 
-class NTPTask : public hal::Task {
+class NTPRunnable : public IRunnable {
   public:
-    NTPTask(hal::IRTC &rtc, hal::INTP &ntp);
+    static constexpr hal::Milliseconds kUpdateInterval = 10 * 60 * 1000;
+    NTPRunnable(hal::IRTC &rtc, hal::INTP &ntp);
 
   private:
-    static constexpr hal::Milliseconds kUpdateInterval = 10 * 60 * 1000;
-
     void run() noexcept final;
 
     hal::IRTC &mRtc;

@@ -26,10 +26,11 @@ set(STAIRCASE_LIB_SRCS
     src/staircase/Moving.cxx
     src/staircase/ProximitySensor.cxx
     src/staircase/StaircaseLooper.cxx
-    src/staircase/StaircaseHandlingTask.cxx
-    src/staircase/PowerTask.cxx
-    src/staircase/NTPTask.cxx
-    src/hal/Task.cxx
+    src/staircase/StaircaseRunnable.cxx
+    src/staircase/PowerRunnable.cxx
+    src/staircase/NTPRunnable.cxx
+    src/staircase/IRunnable.cxx
+    src/hal/ITask.cxx
 )
 
 if (BUILD_STATIC)

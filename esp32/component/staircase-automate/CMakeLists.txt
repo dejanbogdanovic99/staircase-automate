@@ -4,10 +4,11 @@ idf_component_register(
         ../../../src/staircase/Moving.cxx
         ../../../src/staircase/ProximitySensor.cxx
         ../../../src/staircase/StaircaseLooper.cxx
-        ../../../src/staircase/NTPTask.cxx
-        ../../../src/staircase/PowerTask.cxx
-        ../../../src/staircase/StaircaseHandlingTask.cxx
-        ../../../src/hal/Task.cxx
+        ../../../src/staircase/NTPRunnable.cxx
+        ../../../src/staircase/PowerRunnable.cxx
+        ../../../src/staircase/StaircaseRunnable.cxx
+        ../../../src/staircase/IRunnable.cxx
+        ../../../src/hal/ITask.cxx
     INCLUDE_DIRS
         ../../../include
 )

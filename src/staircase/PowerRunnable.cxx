@@ -1,4 +1,4 @@
-#include <staircase/PowerTask.hxx>
+#include <staircase/PowerRunnable.hxx>
 
 #include <hal/IPowerManager.hxx>
 #include <hal/IRTC.hxx>
@@ -8,10 +8,10 @@
 
 using namespace staircase;
 
-PowerTask::PowerTask(hal::IRTC &rtc, hal::IPowerManager &powerManager)
-    : Task{kUpdateInterval}, mRtc{rtc}, mPowerManager{powerManager} {}
+PowerRunnable::PowerRunnable(hal::IRTC &rtc, hal::IPowerManager &powerManager)
+    : mRtc{rtc}, mPowerManager{powerManager} {}
 
-void PowerTask::run() noexcept {
+void PowerRunnable::run() noexcept {
     hal::Milliseconds currentTime = mRtc.getCurrentTimeOfDay();
 
     constexpr hal::Milliseconds startSleepTime = 8 * 60 * 60 * 1000;

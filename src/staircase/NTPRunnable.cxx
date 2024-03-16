@@ -1,4 +1,4 @@
-#include <staircase/NTPTask.hxx>
+#include <staircase/NTPRunnable.hxx>
 
 #include <hal/INTP.hxx>
 #include <hal/IRTC.hxx>
@@ -6,10 +6,10 @@
 
 using namespace staircase;
 
-NTPTask::NTPTask(hal::IRTC &rtc, hal::INTP &ntp)
-    : Task{kUpdateInterval}, mRtc{rtc}, mNtp{ntp} {}
+NTPRunnable::NTPRunnable(hal::IRTC &rtc, hal::INTP &ntp)
+    : mRtc{rtc}, mNtp{ntp} {}
 
-void NTPTask::run() noexcept {
+void NTPRunnable::run() noexcept {
     hal::Milliseconds ntpTime = mNtp.obtainCurrentTimeOfDay();
     hal::Milliseconds rtcTime = mRtc.getCurrentTimeOfDay();
     mRtc.adjustCurrentTime(ntpTime - rtcTime);
