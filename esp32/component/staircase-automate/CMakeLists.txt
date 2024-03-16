@@ -4,6 +4,10 @@ idf_component_register(
         ../../../src/staircase/Moving.cxx
         ../../../src/staircase/ProximitySensor.cxx
         ../../../src/staircase/StaircaseLooper.cxx
+        ../../../src/staircase/NTPTask.cxx
+        ../../../src/staircase/PowerTask.cxx
+        ../../../src/staircase/StaircaseHandlingTask.cxx
+        ../../../src/hal/Task.cxx
     INCLUDE_DIRS
         ../../../include
 )
@@ -14,6 +18,7 @@ target_compile_definitions(${COMPONENT_LIB}
     PUBLIC DEBOUNCE_PERIOD=${CONFIG_DEBOUNCE_PERIOD}
     PUBLIC MAX_MOVINGS=${CONFIG_MAX_MOVINGS}
     PUBLIC MOVING_FINISH_DELTA=${CONFIG_MOVING_FINISH_DELTA}
+    PUBLIC INITIAL_MOVING_DURATION=${CONFIG_INITIAL_MOVING_DURATION}
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Werror -fno-exceptions)
