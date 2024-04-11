@@ -23,14 +23,11 @@ set(INITIAL_MOVING_DURATION 12000 CACHE STRING "Initial number of milliseconds f
 
 set(STAIRCASE_LIB_SRCS
     src/staircase/BasicLight.cxx
+    src/staircase/ClippedSquaredMovingDurationCalculator.cxx
     src/staircase/Moving.cxx
+    src/staircase/MTAMovingTimeFilter.cxx
     src/staircase/ProximitySensor.cxx
     src/staircase/StaircaseLooper.cxx
-    src/staircase/StaircaseRunnable.cxx
-    src/staircase/PowerRunnable.cxx
-    src/staircase/NTPRunnable.cxx
-    src/staircase/IRunnable.cxx
-    src/hal/ITask.cxx
 )
 
 if (BUILD_STATIC)

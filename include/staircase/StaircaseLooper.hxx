@@ -1,25 +1,33 @@
 #pragma once
 
+#include <hal/IPersistence.hxx>
 #include <hal/Timing.hxx>
 
 #include <staircase/IBasicLight.hxx>
 #include <staircase/IMoving.hxx>
+#include <staircase/IMovingDurationCalculator.hxx>
 #include <staircase/IMovingFactory.hxx>
+#include <staircase/IMovingTimeFilter.hxx>
 #include <staircase/IProximitySensor.hxx>
 #include <staircase/IStaircaseLooper.hxx>
 
 #include <util/StaticDequeue.hxx>
 
 #include <cstdint>
+#include <memory>
 #include <mutex>
+#include <string>
 
 namespace staircase {
 
 class StaircaseLooper final : public IStaircaseLooper {
   public:
     StaircaseLooper(BasicLights &lights, IProximitySensor &downSensor,
-                    IProximitySensor &upSensor,
-                    IMovingFactory &movingFactory) noexcept;
+                    IProximitySensor &upSensor, hal::IPersistence &persistence,
+                    IMovingFactory &movingFactory,
+                    IMovingDurationCalculator &durationCalculator,
+                    std::unique_ptr<IMovingTimeFilter> downMovingFilter,
+                    std::unique_ptr<IMovingTimeFilter> upMovingFilter) noexcept;
 
     StaircaseLooper(const StaircaseLooper &) = delete;
     StaircaseLooper(StaircaseLooper &&) noexcept = delete;
@@ -32,8 +40,9 @@ class StaircaseLooper final : public IStaircaseLooper {
     std::lock_guard<std::mutex> block() noexcept final;
 
   private:
-    static constexpr hal::Milliseconds kInitialMovingDuration =
-        INITIAL_MOVING_DURATION;
+    static const std::string kDownMovingKey;
+    static const std::string kUpMovingKey;
+    static constexpr hal::Milliseconds kSavePeriod = 2 * 60 * 60 * 1000;
 
     void updateLights(hal::Milliseconds delta) noexcept;
     void updateSensors(hal::Milliseconds delta) noexcept;
@@ -49,16 +58,19 @@ class StaircaseLooper final : public IStaircaseLooper {
     bool isMoreNewMovingsAvailable(Movings &movings) const noexcept;
 
     void finishFirstMoving(Movings &movings,
-                           hal::Milliseconds &duration) noexcept;
+                           IMovingTimeFilter &filter) noexcept;
 
     BasicLights &mLights;
     IProximitySensor &mDownSensor;
     IProximitySensor &mUpSensor;
+    hal::IPersistence &mPersistence;
     IMovingFactory &mMovingFactory;
-    hal::Milliseconds mDownMovingDuration;
-    hal::Milliseconds mUpMovingDuration;
+    IMovingDurationCalculator &mDurationCalculator;
+    std::unique_ptr<IMovingTimeFilter> mDownMovingFilter;
+    std::unique_ptr<IMovingTimeFilter> mUpMovingFilter;
     Movings mDownMovings;
     Movings mUpMovings;
+    hal::Milliseconds mSaveAccumulatedTime;
 
     std::mutex mLock;
 };

@@ -4,6 +4,7 @@
 
 #include <staircase/IBasicLight.hxx>
 #include <staircase/IMoving.hxx>
+#include <staircase/IMovingDurationCalculator.hxx>
 
 #include <cstdint>
 
@@ -11,8 +12,8 @@ namespace staircase {
 
 class Moving : public IMoving {
   public:
-    Moving(BasicLights &lights, Direction direction,
-           hal::Milliseconds duration) noexcept;
+    Moving(BasicLights &lights, IMovingDurationCalculator &durationCalculator,
+           Direction direction, hal::Milliseconds duration) noexcept;
 
     Moving(const Moving &) = delete;
     Moving(Moving &&) noexcept = default;
@@ -30,13 +31,11 @@ class Moving : public IMoving {
 
   private:
     void turnCurrentOn() noexcept;
-    hal::Milliseconds calculateInterval() const noexcept;
 
     static constexpr hal::Milliseconds kCloseFinishDiff = MOVING_FINISH_DELTA;
-    static constexpr hal::Milliseconds kFastRiseTime = 500;
-    static constexpr std::size_t kFastRiseCount = 3;
 
     BasicLights &mLights;
+    IMovingDurationCalculator &mDurationCalculator;
     std::size_t mCurrentIndex;
     bool mCompleted;
     Direction mDirection;

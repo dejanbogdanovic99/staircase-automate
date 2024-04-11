@@ -1,28 +1,63 @@
 #include <staircase/StaircaseLooper.hxx>
 
+#include <hal/IPersistence.hxx>
 #include <hal/Timing.hxx>
 
 #include <staircase/IBasicLight.hxx>
 #include <staircase/IMoving.hxx>
+#include <staircase/IMovingDurationCalculator.hxx>
 #include <staircase/IMovingFactory.hxx>
+#include <staircase/IMovingTimeFilter.hxx>
 #include <staircase/IProximitySensor.hxx>
+#include <staircase/IStaircaseLooper.hxx>
 
 #include <algorithm>
 #include <mutex>
+#include <string>
 
 using namespace staircase;
 
-StaircaseLooper::StaircaseLooper(BasicLights &lights,
-                                 IProximitySensor &downSensor,
-                                 IProximitySensor &upSensor,
-                                 IMovingFactory &movingFactory) noexcept
+const std::string StaircaseLooper::kDownMovingKey = std::string{"dmv"};
+const std::string StaircaseLooper::kUpMovingKey = std::string{"umv"};
+
+StaircaseLooper::StaircaseLooper(
+    BasicLights &lights, IProximitySensor &downSensor,
+    IProximitySensor &upSensor, hal::IPersistence &persistence,
+    IMovingFactory &movingFactory,
+    IMovingDurationCalculator &durationCalculator,
+    std::unique_ptr<IMovingTimeFilter> downMovingFilter,
+    std::unique_ptr<IMovingTimeFilter> upMovingFilter) noexcept
     : mLights{lights}, mDownSensor{downSensor}, mUpSensor{upSensor},
-      mMovingFactory{movingFactory},
-      mDownMovingDuration{kInitialMovingDuration},
-      mUpMovingDuration{kInitialMovingDuration} {}
+      mPersistence{persistence}, mMovingFactory{movingFactory},
+      mDurationCalculator{durationCalculator},
+      mDownMovingFilter{std::move(downMovingFilter)},
+      mUpMovingFilter{std::move(upMovingFilter)}, mSaveAccumulatedTime{0} {
+    if (mPersistence.keyExists(kDownMovingKey)) {
+        hal::Milliseconds currentValue = static_cast<hal::Milliseconds>(
+            mPersistence.getValue(kDownMovingKey));
+        mDownMovingFilter->reset(currentValue);
+    }
+
+    if (mPersistence.keyExists(kUpMovingKey)) {
+        hal::Milliseconds currentValue =
+            static_cast<hal::Milliseconds>(mPersistence.getValue(kUpMovingKey));
+        mUpMovingFilter->reset(currentValue);
+    }
+}
 
 void StaircaseLooper::update(hal::Milliseconds delta) noexcept {
     std::lock_guard<std::mutex> lock{mLock};
+
+    mSaveAccumulatedTime += delta;
+    if (mSaveAccumulatedTime > kSavePeriod) {
+        mSaveAccumulatedTime = 0;
+        mPersistence.setValue(kDownMovingKey,
+                              static_cast<std::int32_t>(
+                                  mDownMovingFilter->getCurrentMovingTime()));
+        mPersistence.setValue(
+            kUpMovingKey,
+            static_cast<std::int32_t>(mUpMovingFilter->getCurrentMovingTime()));
+    }
 
     updateLights(delta);
     updateSensors(delta);
@@ -70,11 +105,12 @@ void StaircaseLooper::removeAllStaleMovings(Movings &movings) noexcept {
 
 void StaircaseLooper::handleDownSensorStateChanged() {
     if (isFirstMovingFinishing(mDownMovings)) {
-        finishFirstMoving(mDownMovings, mDownMovingDuration);
+        finishFirstMoving(mDownMovings, *mDownMovingFilter);
     } else if (!hasNewMovingJustStarted(mUpMovings) &&
                isMoreNewMovingsAvailable(mUpMovings)) {
-        auto moving = mMovingFactory.create(mLights, IMoving::Direction::UP,
-                                            mUpMovingDuration);
+        auto moving = mMovingFactory.create(
+            mLights, mDurationCalculator, IMoving::Direction::UP,
+            mUpMovingFilter->getCurrentMovingTime());
         if (moving) {
             mUpMovings.push_back(std::move(moving));
         }
@@ -83,11 +119,12 @@ void StaircaseLooper::handleDownSensorStateChanged() {
 
 void StaircaseLooper::handleUpSensorStateChanged() {
     if (isFirstMovingFinishing(mUpMovings)) {
-        finishFirstMoving(mUpMovings, mUpMovingDuration);
+        finishFirstMoving(mUpMovings, *mUpMovingFilter);
     } else if (!hasNewMovingJustStarted(mDownMovings) &&
                isMoreNewMovingsAvailable(mDownMovings)) {
-        auto moving = mMovingFactory.create(mLights, IMoving::Direction::DOWN,
-                                            mDownMovingDuration);
+        auto moving = mMovingFactory.create(
+            mLights, mDurationCalculator, IMoving::Direction::DOWN,
+            mDownMovingFilter->getCurrentMovingTime());
         if (moving) {
             mDownMovings.push_back(std::move(moving));
         }
@@ -116,7 +153,7 @@ bool StaircaseLooper::isMoreNewMovingsAvailable(
 }
 
 void StaircaseLooper::finishFirstMoving(Movings &movings,
-                                        hal::Milliseconds &duration) noexcept {
+                                        IMovingTimeFilter &filter) noexcept {
     if (movings.empty()) {
         return;
     }
@@ -124,6 +161,5 @@ void StaircaseLooper::finishFirstMoving(Movings &movings,
     auto currentDuration = movings.front()->getTimePassed();
     movings.pop_front();
 
-    // TODO fix duration calculation
-    duration = (duration + currentDuration) / 2;
+    filter.processNewMovingTime(currentDuration);
 }

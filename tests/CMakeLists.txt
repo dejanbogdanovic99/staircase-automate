@@ -4,11 +4,11 @@ set(TESTS all-tests)
 
 add_executable(${STAIRCASE_TESTS}
     src/BasicLightTests.cxx
+    src/ClippedSquaredMovingDurationCalculatorTests.cxx
     src/MovingTests.cxx
+    src/MTAMovingTimeFilterTests.cxx
     src/ProximitySensorTests.cxx
     src/StaircaseLooperTests.cxx
-    #src/StaticDequeTests.cxx
-    #src/StaticMovingFactoryTests.cxx
 )
 
 target_include_directories(${STAIRCASE_TESTS}

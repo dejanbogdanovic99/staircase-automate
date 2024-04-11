@@ -1,6 +1,7 @@
 #pragma once
 
 #include <staircase/IMoving.hxx>
+#include <staircase/IMovingDurationCalculator.hxx>
 #include <staircase/IMovingFactory.hxx>
 #include <staircase/Moving.hxx>
 
@@ -20,9 +21,13 @@ class BasicMovingFactory final : public IMovingFactory {
 
     ~BasicMovingFactory() = default;
 
-    MovingPtr create(BasicLights& lights, IMoving::Direction direction,
-                    hal::Milliseconds duration) noexcept final {
-        return MovingPtr{new Moving{lights, direction, duration}, [](IMoving* moving) { delete moving;}};
+    MovingPtr create(BasicLights &lights,
+                     IMovingDurationCalculator &durationCalculator,
+                     IMoving::Direction direction,
+                     hal::Milliseconds duration) noexcept final {
+        return MovingPtr{
+            new Moving{lights, durationCalculator, direction, duration},
+            [](IMoving *moving) { delete moving; }};
     }
 };
 

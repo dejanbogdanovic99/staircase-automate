@@ -3,6 +3,7 @@
 #include <hal/Timing.hxx>
 
 #include <staircase/IBasicLight.hxx>
+#include <staircase/IMovingDurationCalculator.hxx>
 
 #include <algorithm>
 #include <cstdint>
@@ -11,11 +12,15 @@
 
 using namespace staircase;
 
-Moving::Moving(BasicLights &lights, IMoving::Direction direction,
-               hal::Milliseconds duration) noexcept
-    : mLights{lights}, mCurrentIndex{0}, mCompleted{false},
-      mDirection{direction}, mExpectedDuration{duration},
-      mTimeLeftUntilUpdate{calculateInterval()}, mTimePassed{0} {
+Moving::Moving(BasicLights &lights,
+               IMovingDurationCalculator &durationCalculator,
+               Direction direction, hal::Milliseconds duration) noexcept
+    : mLights{lights}, mDurationCalculator{durationCalculator},
+      mCurrentIndex{0}, mCompleted{false}, mDirection{direction},
+      mExpectedDuration{duration},
+      mTimeLeftUntilUpdate{
+          mDurationCalculator.calculateDelta(mCurrentIndex, mExpectedDuration)},
+      mTimePassed{0} {
     turnCurrentOn();
 }
 
@@ -35,7 +40,8 @@ void Moving::update(hal::Milliseconds delta) noexcept {
             return;
         }
 
-        mTimeLeftUntilUpdate = calculateInterval();
+        mTimeLeftUntilUpdate = mDurationCalculator.calculateDelta(
+            mCurrentIndex, mExpectedDuration);
 
         turnCurrentOn();
     }
@@ -57,15 +63,6 @@ bool Moving::isNearBegin() const noexcept {
 
 bool Moving::isTooOld() const noexcept {
     return mTimePassed > (mExpectedDuration + kCloseFinishDiff);
-}
-
-// TODO find better way
-hal::Milliseconds Moving::calculateInterval() const noexcept {
-    if (mCurrentIndex < kFastRiseCount) {
-        return kFastRiseTime;
-    } else {
-        return mExpectedDuration / mLights.size();
-    }
 }
 
 void Moving::turnCurrentOn() noexcept {
