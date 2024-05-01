@@ -1,6 +1,5 @@
 #pragma once
 
-#include <hal/IPersistence.hxx>
 #include <hal/Timing.hxx>
 
 #include <staircase/IBasicLight.hxx>
@@ -23,11 +22,10 @@ namespace staircase {
 class StaircaseLooper final : public IStaircaseLooper {
   public:
     StaircaseLooper(BasicLights &lights, IProximitySensor &downSensor,
-                    IProximitySensor &upSensor, hal::IPersistence &persistence,
-                    IMovingFactory &movingFactory,
+                    IProximitySensor &upSensor, IMovingFactory &movingFactory,
                     IMovingDurationCalculator &durationCalculator,
-                    std::unique_ptr<IMovingTimeFilter> downMovingFilter,
-                    std::unique_ptr<IMovingTimeFilter> upMovingFilter) noexcept;
+                    IMovingTimeFilter &downMovingFilter,
+                    IMovingTimeFilter &upMovingFilter) noexcept;
 
     StaircaseLooper(const StaircaseLooper &) = delete;
     StaircaseLooper(StaircaseLooper &&) noexcept = delete;
@@ -40,10 +38,6 @@ class StaircaseLooper final : public IStaircaseLooper {
     std::lock_guard<std::mutex> block() noexcept final;
 
   private:
-    static const std::string kDownMovingKey;
-    static const std::string kUpMovingKey;
-    static constexpr hal::Milliseconds kSavePeriod = 2 * 60 * 60 * 1000;
-
     void updateLights(hal::Milliseconds delta) noexcept;
     void updateSensors(hal::Milliseconds delta) noexcept;
     void updateMovigns(hal::Milliseconds delta) noexcept;
@@ -63,14 +57,12 @@ class StaircaseLooper final : public IStaircaseLooper {
     BasicLights &mLights;
     IProximitySensor &mDownSensor;
     IProximitySensor &mUpSensor;
-    hal::IPersistence &mPersistence;
     IMovingFactory &mMovingFactory;
     IMovingDurationCalculator &mDurationCalculator;
-    std::unique_ptr<IMovingTimeFilter> mDownMovingFilter;
-    std::unique_ptr<IMovingTimeFilter> mUpMovingFilter;
+    IMovingTimeFilter &mDownMovingFilter;
+    IMovingTimeFilter &mUpMovingFilter;
     Movings mDownMovings;
     Movings mUpMovings;
-    hal::Milliseconds mSaveAccumulatedTime;
 
     std::mutex mLock;
 };
