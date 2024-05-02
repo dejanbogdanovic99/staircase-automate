@@ -16,7 +16,7 @@ class ClippedSquaredMovingDurationCalculator final
 
   private:
     static constexpr hal::Milliseconds kFirstLightDelta = 500;
-    static constexpr hal::Milliseconds kSecondLightDelta = 850;
-    static constexpr hal::Milliseconds kThirdLightDelta = 1500;
+    static constexpr hal::Milliseconds kSecondLightDelta = 750;
+    static constexpr hal::Milliseconds kThirdLightDelta = 1200;
 };
 } // namespace staircase

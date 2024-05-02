@@ -1,14 +1,11 @@
 idf_component_register(
     SRCS
         ../../../src/staircase/BasicLight.cxx
+        ../../../src/staircase/ClippedSquaredMovingDurationCalculator.cxx
         ../../../src/staircase/Moving.cxx
+        ../../../src/staircase/MTAMovingTimeFilter.cxx
         ../../../src/staircase/ProximitySensor.cxx
         ../../../src/staircase/StaircaseLooper.cxx
-        ../../../src/staircase/NTPRunnable.cxx
-        ../../../src/staircase/PowerRunnable.cxx
-        ../../../src/staircase/StaircaseRunnable.cxx
-        ../../../src/staircase/IRunnable.cxx
-        ../../../src/hal/ITask.cxx
     INCLUDE_DIRS
         ../../../include
 )

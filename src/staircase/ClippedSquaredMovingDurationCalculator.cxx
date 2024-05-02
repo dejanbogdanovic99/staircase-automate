@@ -19,6 +19,6 @@ hal::Milliseconds ClippedSquaredMovingDurationCalculator::calculateDelta(
     case 2:
         return kThirdLightDelta;
     default:
-        return totalDuration / IBasicLight::kLightsNum;
+        return totalDuration / (IBasicLight::kLightsNum + 1);
     }
 }
